@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html data-bs-theme="light">
+
+<head>
+	<title>Chess PGN Trainer - Student Board</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1.0" charset="UTF-8" />
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Expires" content="0">
+
+	<link rel="shortcut icon" type="image/x-icon" href="./src/app/favicon.ico?v=2" />
+
+	<!-- JQuery (https://jquery.com/) -->
+	<script src="./src/lib/jquery/jquery-3.7.1.min.js"></script>
+
+	<!-- Bootstrap (https://getbootstrap.com/docs/5.3/getting-started/download/) -->
+	<link rel="stylesheet" href="./src/lib/bootstrap/bootstrap-5.3.5.min.css">
+	<script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
+
+	<!-- Chessboardjs -->
+	<link rel="stylesheet" href="./src/lib/chessboardjs/chessboard-1.0.0.css">
+	<script src="./src/lib/chessboardjs/chessboard-1.0.0-modified.js"></script>
+
+	<!-- Chess.js -->
+	<script type="module" src="./src/lib/chess/chess1.20.0-esm-customised.js"></script>
+
+	<!-- Core Application -->
+	<link rel="stylesheet" href="./src/app/chess-pgn-trainer.css">
+
+	<style>
+		body {
+			background-color: #f8f9fa;
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+		}
+
+		.student-header {
+			background: white;
+			padding: 15px 20px;
+			border-bottom: 1px solid #dee2e6;
+			box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+		}
+
+		.student-info {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 10px;
+		}
+
+		.student-name {
+			font-size: 20px;
+			font-weight: 600;
+			color: #212529;
+		}
+
+		.connection-indicator {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.status-dot {
+			width: 12px;
+			height: 12px;
+			border-radius: 50%;
+			background-color: #28a745;
+			animation: pulse 2s infinite;
+		}
+
+		.status-text {
+			font-size: 14px;
+			color: #28a745;
+			font-weight: 500;
+		}
+
+		.session-info {
+			display: flex;
+			gap: 20px;
+			font-size: 14px;
+			color: #6c757d;
+		}
+
+		.info-item {
+			display: flex;
+			align-items: center;
+			gap: 5px;
+		}
+
+		.board-controls {
+			background: white;
+			padding: 15px 20px;
+			border-bottom: 1px solid #dee2e6;
+		}
+
+		.control-status {
+			display: flex;
+			gap: 20px;
+			justify-content: center;
+		}
+
+		.status-badge {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 16px;
+			border-radius: 20px;
+			font-size: 14px;
+			font-weight: 500;
+		}
+
+		.voice-status.enabled {
+			background-color: #d4edda;
+			color: #155724;
+			border: 1px solid #c3e6cb;
+		}
+
+		.voice-status.disabled {
+			background-color: #f8d7da;
+			color: #721c24;
+			border: 1px solid #f5c6cb;
+		}
+
+		.drawing-status.enabled {
+			background-color: #cce5ff;
+			color: #004085;
+			border: 1px solid #b8daff;
+		}
+
+		.drawing-status.disabled {
+			background-color: #e2e3e5;
+			color: #383d41;
+			border: 1px solid #d6d8db;
+		}
+
+		.board-container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			padding: 20px;
+			background: white;
+			margin: 0;
+		}
+
+		.puzzle-info {
+			text-align: center;
+			margin-bottom: 20px;
+			padding: 15px;
+			background: #f8f9fa;
+			border-radius: 8px;
+			border: 1px solid #dee2e6;
+		}
+
+		.puzzle-title {
+			font-size: 18px;
+			font-weight: 600;
+			color: #212529;
+			margin-bottom: 5px;
+		}
+
+		.puzzle-details {
+			font-size: 14px;
+			color: #6c757d;
+		}
+
+		.chess-board-wrapper {
+			position: relative;
+			margin-bottom: 20px;
+		}
+
+		.board-overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: rgba(255, 255, 255, 0.9);
+			display: none;
+			align-items: center;
+			justify-content: center;
+			z-index: 10;
+			border-radius: 4px;
+		}
+
+		.board-overlay.disabled {
+			display: flex;
+		}
+
+		.overlay-message {
+			background: white;
+			padding: 20px;
+			border-radius: 8px;
+			box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+			text-align: center;
+		}
+
+		.move-indicator {
+			text-align: center;
+			font-size: 16px;
+			font-weight: 500;
+			padding: 10px;
+			margin-bottom: 15px;
+			background: #e9ecef;
+			border-radius: 6px;
+		}
+
+		.student-actions {
+			display: flex;
+			gap: 10px;
+			justify-content: center;
+			margin-bottom: 20px;
+		}
+
+		.action-btn {
+			padding: 8px 16px;
+			border: none;
+			border-radius: 6px;
+			cursor: pointer;
+			font-weight: 500;
+			transition: all 0.2s ease;
+		}
+
+		.btn-hint {
+			background-color: #ffc107;
+			color: #212529;
+		}
+
+		.btn-hint:hover {
+			background-color: #ffca2c;
+			transform: translateY(-1px);
+		}
+
+		.btn-next {
+			background-color: #28a745;
+			color: white;
+		}
+
+		.btn-next:hover {
+			background-color: #218838;
+			transform: translateY(-1px);
+		}
+
+		.progress-section {
+			background: white;
+			padding: 20px;
+			margin-top: 20px;
+			border-top: 1px solid #dee2e6;
+		}
+
+		.progress-stats {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+			gap: 15px;
+			margin-bottom: 15px;
+		}
+
+		.stat-card {
+			text-align: center;
+			padding: 15px;
+			background: #f8f9fa;
+			border-radius: 8px;
+			border: 1px solid #dee2e6;
+		}
+
+		.stat-label {
+			font-size: 12px;
+			color: #6c757d;
+			margin-bottom: 5px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+
+		.stat-value {
+			font-size: 24px;
+			font-weight: 700;
+			color: #212529;
+		}
+
+		.progress-bar-container {
+			margin-top: 15px;
+		}
+
+		.progress-bar-label {
+			display: flex;
+			justify-content: between;
+			margin-bottom: 5px;
+			font-size: 14px;
+			color: #6c757d;
+		}
+
+		@keyframes pulse {
+			0%, 100% { opacity: 1; }
+			50% { opacity: 0.6; }
+		}
+
+		@media (max-width: 768px) {
+			.student-info {
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 10px;
+			}
+
+			.session-info {
+				flex-direction: column;
+				gap: 5px;
+			}
+
+			.control-status {
+				flex-direction: column;
+				gap: 10px;
+			}
+
+			.progress-stats {
+				grid-template-columns: 1fr 1fr;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<!-- Student Header -->
+	<div class="student-header">
+		<div class="student-info">
+			<div class="student-name" id="studentName">Student Name</div>
+			<div class="connection-indicator">
+				<div class="status-dot" id="connectionDot"></div>
+				<span class="status-text" id="connectionText">Connected</span>
+			</div>
+		</div>
+		<div class="session-info">
+			<div class="info-item">
+				<span>📚</span>
+				<span id="sessionTitle">Chess Training Session</span>
+			</div>
+			<div class="info-item">
+				<span>⏱️</span>
+				<span id="sessionTime">15:42</span>
+			</div>
+			<div class="info-item">
+				<span>🧩</span>
+				<span id="puzzleProgress">Puzzle 5 of 15</span>
+			</div>
+		</div>
+	</div>
+
+	<!-- Board Controls Status -->
+	<div class="board-controls">
+		<div class="control-status">
+			<div class="status-badge voice-status enabled" id="voiceStatus">
+				<span>🔊</span>
+				<span>Voice Chat Enabled</span>
+			</div>
+			<div class="status-badge drawing-status enabled" id="drawingStatus">
+				<span>✏️</span>
+				<span>Drawing Mode Enabled</span>
+			</div>
+		</div>
+	</div>
+
+	<!-- Main Board Area -->
+	<div class="board-container">
+		<!-- Puzzle Information -->
+		<div class="puzzle-info">
+			<div class="puzzle-title" id="puzzleTitle">Find the Best Move</div>
+			<div class="puzzle-details" id="puzzleDetails">White to move • Tactical puzzle</div>
+		</div>
+
+		<!-- Chess Board -->
+		<div class="chess-board-wrapper">
+			<div id="myBoard" class="chessboard"></div>
+			<div class="board-overlay" id="boardOverlay">
+				<div class="overlay-message">
+					<h4>Board Disabled</h4>
+					<p>Waiting for admin to enable interaction</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Move Indicator -->
+		<div class="move-indicator" id="moveIndicator">White to move</div>
+
+		<!-- Student Actions -->
+		<div class="student-actions">
+			<button class="action-btn btn-hint" onclick="requestHint()">
+				💡 Hint
+			</button>
+			<button class="action-btn btn-next" onclick="submitMove()" style="display: none;" id="nextBtn">
+				➡️ Next Puzzle
+			</button>
+		</div>
+	</div>
+
+	<!-- Progress Section -->
+	<div class="progress-section">
+		<div class="progress-stats">
+			<div class="stat-card">
+				<div class="stat-label">Completed</div>
+				<div class="stat-value" id="completedPuzzles">4</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-label">Accuracy</div>
+				<div class="stat-value" id="accuracyScore">92%</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-label">Streak</div>
+				<div class="stat-value" id="currentStreak">3</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-label">Time</div>
+				<div class="stat-value" id="averageTime">45s</div>
+			</div>
+		</div>
+
+		<!-- Progress Bar -->
+		<div class="progress-bar-container">
+			<div class="progress-bar-label">
+				<span>Session Progress</span>
+				<span id="progressPercent">27%</span>
+			</div>
+			<div class="progress" style="height: 8px;">
+				<div class="progress-bar bg-success" role="progressbar" style="width: 27%" id="progressBar"></div>
+			</div>
+		</div>
+	</div>
+
+	<script type="module">
+		import { Chess } from './src/lib/chess/chess1.20.0-esm-customised.js';
+
+		// Game state
+		let board;
+		let game = new Chess();
+		let studentData = {
+			name: "Alex Johnson",
+			connected: true,
+			voiceEnabled: true,
+			drawingEnabled: true,
+			completedPuzzles: 4,
+			accuracy: 92,
+			streak: 3,
+			averageTime: 45
+		};
+
+		// Initialize the application
+		$(document).ready(function() {
+			initializeBoard();
+			updateStudentInfo();
+			updateSessionTimer();
+			
+			// Simulate real-time updates from admin
+			simulateAdminUpdates();
+		});
+
+		function initializeBoard() {
+			const config = {
+				draggable: true,
+				position: 'start',
+				pieceTheme: './src/lib/chessboardjs/img/chesspieces/alpha/{piece}.svg',
+				onDragStart: onDragStart,
+				onDrop: onDrop,
+				onSnapEnd: onSnapEnd
+			};
+			
+			board = Chessboard('myBoard', config);
+			
+			// Set a sample puzzle position
+			const puzzlePosition = 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 0 4';
+			game.load(puzzlePosition);
+			board.position(puzzlePosition);
+		}
+
+		function onDragStart(source, piece, position, orientation) {
+			// Only allow moves if it's the student's turn and board is enabled
+			if (game.game_over()) return false;
+			
+			// Check if drawing mode affects piece movement
+			if (!studentData.drawingEnabled) {
+				console.log('Drawing mode disabled - limited interaction');
+			}
+			
+			// Only allow pieces of the current player to move
+			if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+					(game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+				return false;
+			}
+		}
+
+		function onDrop(source, target) {
+			// Try to make the move
+			const move = game.move({
+				from: source,
+				to: target,
+				promotion: 'q'
+			});
+
+			// If move is invalid, snap back
+			if (move === null) return 'snapback';
+
+			// Update move indicator
+			updateMoveIndicator();
+			
+			// Check if puzzle is solved
+			checkPuzzleSolution(move);
+		}
+
+		function onSnapEnd() {
+			board.position(game.fen());
+		}
+
+		function updateMoveIndicator() {
+			const indicator = document.getElementById('moveIndicator');
+			if (game.turn() === 'w') {
+				indicator.textContent = 'White to move';
+				indicator.style.backgroundColor = '#f8f9fa';
+			} else {
+				indicator.textContent = 'Black to move';
+				indicator.style.backgroundColor = '#343a40';
+				indicator.style.color = 'white';
+			}
+		}
+
+		function checkPuzzleSolution(move) {
+			// Simulate puzzle solution check
+			console.log('Move made:', move.san);
+			
+			// For demo purposes, assume puzzle is solved after any move
+			setTimeout(() => {
+				document.getElementById('nextBtn').style.display = 'inline-block';
+				updateStats();
+			}, 1000);
+		}
+
+		function updateStudentInfo() {
+			document.getElementById('studentName').textContent = studentData.name;
+			
+			// Update voice status
+			const voiceStatus = document.getElementById('voiceStatus');
+			if (studentData.voiceEnabled) {
+				voiceStatus.className = 'status-badge voice-status enabled';
+				voiceStatus.innerHTML = '<span>🔊</span><span>Voice Chat Enabled</span>';
+			} else {
+				voiceStatus.className = 'status-badge voice-status disabled';
+				voiceStatus.innerHTML = '<span>🔇</span><span>Voice Chat Disabled</span>';
+			}
+			
+			// Update drawing status
+			const drawingStatus = document.getElementById('drawingStatus');
+			if (studentData.drawingEnabled) {
+				drawingStatus.className = 'status-badge drawing-status enabled';
+				drawingStatus.innerHTML = '<span>✏️</span><span>Drawing Mode Enabled</span>';
+			} else {
+				drawingStatus.className = 'status-badge drawing-status disabled';
+				drawingStatus.innerHTML = '<span>✏️</span><span>Drawing Mode Disabled</span>';
+			}
+		}
+
+		function updateStats() {
+			document.getElementById('completedPuzzles').textContent = studentData.completedPuzzles;
+			document.getElementById('accuracyScore').textContent = studentData.accuracy + '%';
+			document.getElementById('currentStreak').textContent = studentData.streak;
+			document.getElementById('averageTime').textContent = studentData.averageTime + 's';
+			
+			// Update progress bar
+			const progress = Math.round((studentData.completedPuzzles / 15) * 100);
+			document.getElementById('progressPercent').textContent = progress + '%';
+			document.getElementById('progressBar').style.width = progress + '%';
+		}
+
+		function updateSessionTimer() {
+			let startTime = Date.now();
+			setInterval(function() {
+				const elapsed = Math.floor((Date.now() - startTime) / 1000);
+				const minutes = Math.floor(elapsed / 60);
+				const seconds = elapsed % 60;
+				document.getElementById('sessionTime').textContent = 
+					minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+			}, 1000);
+		}
+
+		function requestHint() {
+			console.log('Hint requested');
+			alert('Hint: Look for a tactical opportunity with your knight!');
+		}
+
+		function submitMove() {
+			console.log('Moving to next puzzle');
+			studentData.completedPuzzles++;
+			studentData.streak++;
+			
+			// Reset board for next puzzle
+			game.reset();
+			board.start();
+			document.getElementById('nextBtn').style.display = 'none';
+			
+			// Update puzzle info
+			document.getElementById('puzzleProgress').textContent = `Puzzle ${studentData.completedPuzzles + 1} of 15`;
+			
+			updateStats();
+		}
+
+		function simulateAdminUpdates() {
+			// Simulate receiving updates from admin via WebSocket
+			setInterval(() => {
+				// Randomly toggle controls (simulating admin changes)
+				if (Math.random() > 0.98) {
+					studentData.voiceEnabled = !studentData.voiceEnabled;
+					updateStudentInfo();
+					console.log('Voice status updated by admin:', studentData.voiceEnabled ? 'enabled' : 'disabled');
+				}
+				
+				if (Math.random() > 0.99) {
+					studentData.drawingEnabled = !studentData.drawingEnabled;
+					updateStudentInfo();
+					console.log('Drawing status updated by admin:', studentData.drawingEnabled ? 'enabled' : 'disabled');
+				}
+			}, 2000);
+		}
+
+		// Make functions global for onclick handlers
+		window.requestHint = requestHint;
+		window.submitMove = submitMove;
+	</script>
+</body>
+</html>
