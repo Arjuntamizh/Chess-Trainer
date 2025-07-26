@@ -601,41 +601,43 @@
       });
   });
 </script>
-<!-- Improved PGN Selector Code -->
-<script>
-  document.getElementById("pgnSelector").addEventListener("change", function() {
-    const selectedFile = this.value;
-    if (!selectedFile) return;
+
+	<script>
+document.getElementById("pgnSelector").addEventListener("change", function() {
+    const selectedValue = this.value;
+    if (!selectedValue) return;
     
-    const url = `https://raw.githubusercontent.com/Arjuntamizh/Chess-Trainer/main/pgns/${selectedFile}`;
+    // Extract just the filename if full URL was provided
+    const filename = selectedValue.includes('/') 
+        ? selectedValue.split('/').pop() 
+        : selectedValue;
     
-    fetch(url)
+    const baseUrl = "https://raw.githubusercontent.com/Arjuntamizh/Chess-Trainer/main/pgns/";
+    const pgnUrl = baseUrl + filename;
+    
+    fetch(pgnUrl)
       .then(res => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`File not found (404)`);
         return res.text();
       })
       .then(pgnText => {
-        // Basic PGN validation
-        if (!pgnText.startsWith("[Event ") && !pgnText.includes("1.")) {
-          throw new Error("Invalid PGN format");
+        if (!pgnText.trim().startsWith("[") || !pgnText.includes("1.")) {
+          throw new Error("Invalid PGN format - missing headers or moves");
         }
         
-        const event = new Event("change", { bubbles: true });
-        const openPGN = document.getElementById("openPGN");
-        
-        const file = new File([pgnText], selectedFile, { type: "text/plain" });
+        const file = new File([pgnText], filename, {type: "text/plain"});
         const dt = new DataTransfer();
         dt.items.add(file);
+        
+        const openPGN = document.getElementById("openPGN");
         openPGN.files = dt.files;
-        openPGN.dispatchEvent(event);
+        openPGN.dispatchEvent(new Event("change"));
       })
       .catch(err => {
-        console.error("PGN loading failed:", err);
-        alert(`Failed to load PGN: ${err.message}\n\nPlease check:\n1. File exists at ${url}\n2. File has valid PGN content`);
+        alert(`PGN Load Error:\n${err.message}\n\nTried loading: ${filename}`);
+        console.error("PGN load failed:", err);
       });
-  });
+});
 </script>
 
 
