@@ -19,6 +19,19 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app);
 
+// Piece theme list
+const PieceList = [
+    { Name: 'Alpha', DirectoryName: 'alpha', Type: 'svg' },
+    { Name: 'Cburnett', DirectoryName: 'cburnett', Type: 'svg' },
+    { Name: 'Chessnut', DirectoryName: 'chessnut', Type: 'svg' },
+    { Name: 'Merida', DirectoryName: 'merida', Type: 'svg' },
+    { Name: 'Staunty', DirectoryName: 'staunty', Type: 'svg' },
+    { Name: 'Tatiana', DirectoryName: 'tatiana', Type: 'svg' }
+];
+
+// Default piece theme (Cburnett)
+const defaultPieceTheme = { Name: 'Cburnett', DirectoryName: 'cburnett', Type: 'svg' };
+
 // Global variables
 window.auth = auth;
 window.database = database;
@@ -31,7 +44,8 @@ window.gameState = {
     accuracy: 0,
     progress: 0,
     currentPuzzle: 1,
-    totalPuzzles: 15
+    totalPuzzles: 15,
+    pieceTheme: defaultPieceTheme
 };
 
 // Initialize Chessground
@@ -88,10 +102,23 @@ function setupChessboard() {
             orientation: 'white',
             turnColor: 'white',
             check: false,
+            coordinates: true,
+            addPieceZIndex: false,
+            blockTouchScroll: false,
+            pieceKey: true,
+            highlight: {
+                lastMove: true,
+                check: true
+            },
+            animation: {
+                enabled: true,
+                duration: 200
+            },
             movable: {
                 free: false,
                 color: 'white',
                 dests: new Map(),
+                showDests: true,
                 events: {
                     after: onMove
                 }
@@ -114,15 +141,43 @@ function setupChessboard() {
             },
             drawable: {
                 enabled: true,
-                visible: true
+                visible: true,
+                defaultSnapToValidMove: true
             }
         });
 
+        // Apply Cburnett piece theme
+        applyPieceTheme(window.gameState.pieceTheme);
         updateBoard();
     } catch (error) {
         console.error('Error setting up chessground:', error);
         setupFallbackBoard();
     }
+}
+
+// Apply piece theme to chessground
+function applyPieceTheme(theme) {
+    if (!chessground) return;
+    
+    // Cburnett pieces are the default for chessground, so we just need to ensure they load properly
+    const pieceBaseUrl = `https://lichess1.org/assets/piece/${theme.DirectoryName}/`;
+    
+    // Apply custom CSS for piece theme if needed
+    const existingStyle = document.getElementById('piece-theme-style');
+    if (existingStyle) {
+        existingStyle.remove();
+    }
+    
+    const style = document.createElement('style');
+    style.id = 'piece-theme-style';
+    style.textContent = `
+        .cg-wrap piece {
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 // Fallback simple chess board
@@ -137,6 +192,7 @@ function setupFallbackBoard() {
             grid-template-rows: repeat(8, 1fr);
             border: 3px solid #8B4513;
             background: #F5DEB3;
+            aspect-ratio: 1;
         ">
             ${generateSimpleBoard()}
         </div>
@@ -389,5 +445,20 @@ window.toggleMute = function() {
     } else {
         muteBtn.innerHTML = '<i class="bi bi-mic"></i> Mute';
         muteBtn.classList.remove('muted');
+    }
+};
+
+// Change piece theme
+window.changePieceTheme = function(themeDirectory) {
+    const selectedTheme = PieceList.find(theme => theme.DirectoryName === themeDirectory);
+    if (selectedTheme) {
+        window.gameState.pieceTheme = selectedTheme;
+        applyPieceTheme(selectedTheme);
+        
+        // Save to Firebase
+        const gameRef = ref(database, 'games/default');
+        set(gameRef, window.gameState).catch(error => {
+            console.error('Error saving theme:', error);
+        });
     }
 };
