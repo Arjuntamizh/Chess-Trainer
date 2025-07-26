@@ -31,13 +31,12 @@
 <header class="d-flex justify-content-between align-items-center bg-dark text-white p-2">
 <h3 class="ms-2">IQ4U Chess</h3>
 <div class="me-2">
-<button class="btn btn-success btn-sm me-2" id="startCall">Join Call</button>
-<button class="btn btn-danger btn-sm me-2" id="endCall">Leave Call</button>
+<button class="btn btn-success btn-sm me-2" id="joinCall">Join Call</button>
+<button class="btn btn-danger btn-sm me-2" id="leaveCall">Leave Call</button>
 <button class="btn btn-warning btn-sm me-2" id="muteToggle">Mute</button>
 <button class="btn btn-outline-light btn-sm" id="logoutBtn">Logout</button>
 </div>
 </header>
-
 <div>
 <input id="email" placeholder="Email" type="email"/>
 <input id="password" placeholder="Password" type="password"/>
@@ -445,14 +444,14 @@
 </div>
 </div>
 <h2>Login</h2>
-<input id="email" placeholder="Email" type="email">
-<input id="password" placeholder="Password" type="password">
+<input id="email" placeholder="Email" type="email"/>
+<input id="password" placeholder="Password" type="password"/>
 <button onclick="login()">Login</button>
 <p id="error" style="color: red;"></p>
 <script src="login.js" type="module"></script>
 <!-- Login UI -->
-<input id="email" placeholder="Email" type="email"><br/>
-<input id="password" placeholder="Password" type="password"><br/>
+<input id="email" placeholder="Email" type="email"/><br/>
+<input id="password" placeholder="Password" type="password"/><br/>
 <button onclick="login()">Login</button>
 <!-- Firebase Auth Script -->
 <script src="./firebase-config.js" type="module"></script>
@@ -462,6 +461,14 @@
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
+  apiKey: "AIzaSyAI1oPe7OL78JQtFjscD5y_Wdp5NqoB-J0",
+  authDomain: "iq4u-chess-b2835.firebaseapp.com",
+  databaseURL: "https://iq4u-chess-b2835-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "iq4u-chess-b2835",
+  storageBucket: "iq4u-chess-b2835.firebasestorage.app",
+  messagingSenderId: "1029237519163",
+  appId: "1:1029237519163:web:2b060008c0f11bfe5a3d1e"
+};
     apiKey: "AIzaSyAI1oPe7OL78JQtFjscD5y_Wdp5NqoB-J0",
     authDomain: "iq4u-chess-b2835.firebaseapp.com",
     databaseURL: "https://iq4u-chess-b2835-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -498,63 +505,28 @@
     }
   });
 </script>
-</input></input></input></input>
 <script type="module">
   import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   const auth = getAuth();
-  const db = getDatabase();
-
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    signOut(auth).then(() => {
-      alert("Logged out");
-      window.location.href = "index.html";
-    }).catch((error) => {
-      console.error("Logout Error", error);
-    });
-  });
-
-  let localStream, peerConnection;
-  const servers = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
-  const callRef = ref(db, 'calls/room123');
-
-  async function startCall() {
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    peerConnection = new RTCPeerConnection(servers);
-    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-
-    peerConnection.onicecandidate = event => {
-      if (event.candidate) {
-        set(ref(db, 'calls/room123/candidates'), event.candidate.toJSON());
-      }
-    };
-
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-    set(callRef, { offer });
-  }
-
-  onValue(callRef, async snapshot => {
-    const data = snapshot.val();
-    if (data && data.answer && peerConnection) {
-      await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-    }
-  });
-
-  let isMuted = false;
-  document.getElementById("muteToggle").onclick = () => {
-    if (localStream) {
-      isMuted = !isMuted;
-      localStream.getAudioTracks().forEach(track => track.enabled = !isMuted);
-      document.getElementById("muteToggle").innerText = isMuted ? "Unmute" : "Mute";
-    }
+  document.getElementById("logoutBtn").onclick = () => {
+    signOut(auth).then(() => window.location.href = "index.html");
   };
 
-  document.getElementById("startCall").onclick = () => startCall();
-  document.getElementById("endCall").onclick = () => {
-    if (peerConnection) peerConnection.close();
+  let localStream, isMuted = false;
+  document.getElementById("joinCall").onclick = async () => {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    alert("Voice joined (demo mode)");
+  };
+  document.getElementById("leaveCall").onclick = () => {
     if (localStream) localStream.getTracks().forEach(t => t.stop());
+    alert("Left voice call");
+  };
+  document.getElementById("muteToggle").onclick = () => {
+    if (!localStream) return;
+    isMuted = !isMuted;
+    localStream.getAudioTracks().forEach(track => track.enabled = !isMuted);
+    document.getElementById("muteToggle").innerText = isMuted ? "Unmute" : "Mute";
   };
 </script>
 </body>
