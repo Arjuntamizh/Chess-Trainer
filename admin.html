@@ -231,15 +231,6 @@
 	</style>
 </head>
 <body style="background-color: #f5f5f5; margin: 0; padding: 0;">
-<header class="d-flex justify-content-between align-items-center bg-dark text-white p-2">
-<h3 class="ms-2">IQ4U Chess</h3>
-<div class="me-2">
-<button class="btn btn-success btn-sm me-2" id="joinCall">Join Call</button>
-<button class="btn btn-danger btn-sm me-2" id="leaveCall">Leave Call</button>
-<button class="btn btn-warning btn-sm me-2" id="muteToggle">Mute</button>
-<button class="btn btn-outline-light btn-sm" id="logoutBtn">Logout</button>
-</div>
-</header>
 <!-- Session Controls Header -->
 <div class="session-controls">
 <div class="session-header">
@@ -519,29 +510,43 @@
 			});
 		}, 5000);
 	</script>
+
 <script type="module">
-  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  const auth = getAuth();
-  document.getElementById("logoutBtn").onclick = () => {
-    signOut(auth).then(() => window.location.href = "index.html");
+  const db = getDatabase();
+  const userList = document.createElement("ul");
+  userList.id = "studentList";
+  userList.className = "list-group m-2";
+  document.body.prepend(userList);
+
+  const studentCountLabel = document.createElement("div");
+  studentCountLabel.id = "studentCount";
+  studentCountLabel.className = "alert alert-info m-2";
+  studentCountLabel.innerText = "Connected Students: 0";
+  document.body.prepend(studentCountLabel);
+
+  const connectedStudents = new Set();
+
+  const updateCount = () => {
+    studentCountLabel.innerText = `Connected Students: ${connectedStudents.size}`;
   };
 
-  let localStream, isMuted = false;
-  document.getElementById("joinCall").onclick = async () => {
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    alert("Voice joined (demo mode)");
-  };
-  document.getElementById("leaveCall").onclick = () => {
-    if (localStream) localStream.getTracks().forEach(t => t.stop());
-    alert("Left voice call");
-  };
-  document.getElementById("muteToggle").onclick = () => {
-    if (!localStream) return;
-    isMuted = !isMuted;
-    localStream.getAudioTracks().forEach(track => track.enabled = !isMuted);
-    document.getElementById("muteToggle").innerText = isMuted ? "Unmute" : "Mute";
-  };
+  onValue(ref(db, "calls/room123/peers"), (snapshot) => {
+    const list = snapshot.val() || {};
+    const ul = document.getElementById("studentList");
+    ul.innerHTML = "";
+    connectedStudents.clear();
+
+    Object.keys(list).forEach((uid) => {
+      connectedStudents.add(uid);
+      const li = document.createElement("li");
+      li.className = "list-group-item";
+      li.innerText = uid;
+      ul.appendChild(li);
+    });
+    updateCount();
+  });
 </script>
 </body>
 </html>
