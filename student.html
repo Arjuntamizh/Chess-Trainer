@@ -14,6 +14,10 @@
 <!-- Bootstrap (https://getbootstrap.com/docs/5.3/getting-started/download/) -->
 <link href="./src/lib/bootstrap/bootstrap-5.3.5.min.css" rel="stylesheet"/>
 <script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
+<!-- Chessboardjs -->
+<!-- Modified copy of chessboardJS in order to handle resizing on width AND height so that the board never gets larger than the vertical space -->
+<link href="./src/lib/chessboardjs/chessboard-1.0.0.css" rel="stylesheet"/>
+<script src="./src/lib/chessboardjs/chessboard-1.0.0-modified.js"></script>
 <!-- MiniColors (https://github.com/claviska/jquery-minicolors) -->
 <link href="./src/lib/jquery-minicolors/jquery.minicolors.css" rel="stylesheet"/>
 <script src="./src/lib/jquery-minicolors/jquery.minicolors.min.js"></script>
@@ -22,13 +26,6 @@
 <script src="./src/app/chess-pgn-trainer.js" type="module"></script>
 <!-- Annotation -->
 <link href="./src/components/annotation/annotate.css" rel="stylesheet"/>
-<!-- Chessground CSS (board styling) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chessground@8.2.3/assets/chessground.base.css">
-
-<!-- Chessground JS (main script) -->
-<script src="https://cdn.jsdelivr.net/npm/chessground@8.2.3/chessground.min.js"></script>
-
-
 </head>
 <body style="overscroll-behavior-y: none;overflow: hidden;">
 <header class="d-flex justify-content-between align-items-center bg-dark text-white p-2">
