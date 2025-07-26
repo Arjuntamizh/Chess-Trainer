@@ -469,14 +469,6 @@
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
-  apiKey: "AIzaSyAI1oPe7OL78JQtFjscD5y_Wdp5NqoB-J0",
-  authDomain: "iq4u-chess-b2835.firebaseapp.com",
-  databaseURL: "https://iq4u-chess-b2835-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "iq4u-chess-b2835",
-  storageBucket: "iq4u-chess-b2835.firebasestorage.app",
-  messagingSenderId: "1029237519163",
-  appId: "1:1029237519163:web:2b060008c0f11bfe5a3d1e"
-};
     apiKey: "AIzaSyAI1oPe7OL78JQtFjscD5y_Wdp5NqoB-J0",
     authDomain: "iq4u-chess-b2835.firebaseapp.com",
     databaseURL: "https://iq4u-chess-b2835-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -538,67 +530,23 @@
   };
 </script>
 
+<!-- PGN Selector + Loader -->
 <script>
   document.getElementById("pgnSelector").addEventListener("change", function () {
-    const selectedFile = this.value;
-    fetch(`./pgns/${selectedFile}`)
+    const url = "https://raw.githubusercontent.com/Arjuntamizh/Chess-Trainer/main/pgns/" + this.value;
+    fetch(url)
       .then(res => res.text())
       .then(pgnText => {
-        const pgnInput = document.createElement("input");
-        pgnInput.type = "file";
-        const file = new File([pgnText], selectedFile, { type: "text/plain" });
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        pgnInput.files = dataTransfer.files;
-
-        const openPGN = document.getElementById("openPGN");
-        openPGN.files = pgnInput.files;
-
         const event = new Event("change", { bubbles: true });
+        const openPGN = document.getElementById("openPGN");
+
+        const file = new File([pgnText], this.value, { type: "text/plain" });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        openPGN.files = dt.files;
         openPGN.dispatchEvent(event);
       })
       .catch(err => alert("Failed to load PGN: " + err));
-  });
-</script>
-
-
-<script>
-  const selector = document.createElement("select");
-  selector.id = "pgnSelector";
-  selector.className = "form-select fs-5 mt-2";
-  selector.innerHTML = '<option disabled selected>Select PGN</option>';
-  document.getElementById("openPGN_button").insertAdjacentElement("afterend", selector);
-
-  fetch("https://api.github.com/repos/Arjuntamizh/Chess-Trainer/contents/pgns")
-    .then(res => res.json())
-    .then(files => {
-      files
-        .filter(file => file.name.endsWith(".pgn"))
-        .forEach(file => {
-          const opt = document.createElement("option");
-          opt.value = file.download_url;
-          opt.textContent = file.name.replace(".pgn", "");
-          selector.appendChild(opt);
-        });
-    });
-
-  selector.addEventListener("change", function () {
-    fetch(this.value)
-      .then(res => res.text())
-      .then(pgnText => {
-        const pgnInput = document.createElement("input");
-        pgnInput.type = "file";
-        const file = new File([pgnText], "selected.pgn", { type: "text/plain" });
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        pgnInput.files = dt.files;
-
-        const openPGN = document.getElementById("openPGN");
-        openPGN.files = pgnInput.files;
-
-        const event = new Event("change", { bubbles: true });
-        openPGN.dispatchEvent(event);
-      });
   });
 </script>
 
