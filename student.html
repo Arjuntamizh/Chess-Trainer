@@ -63,8 +63,32 @@
 
         .chessground-wrap {
             width: 100%;
-            height: 500px;
+            max-width: 500px;
+            height: 0;
+            padding-bottom: 100%; /* Makes it square */
+            position: relative;
             margin: 0 auto;
+        }
+
+        .chessground-wrap > div {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Responsive sizing for smaller screens */
+        @media (max-width: 768px) {
+            .chessground-wrap {
+                max-width: 350px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .chessground-wrap {
+                max-width: 300px;
+            }
         }
 
         .game-stats {
@@ -330,6 +354,19 @@
                     <button class="btn-custom btn-success-custom" onclick="resetPosition()">
                         <i class="bi bi-arrow-clockwise"></i> Reset Position
                     </button>
+                </div>
+
+                <!-- Piece Theme Selector -->
+                <div class="control-panel">
+                    <h5 class="mb-3">Piece Theme</h5>
+                    <select class="form-select" id="pieceThemeSelect" onchange="changePieceTheme(this.value)">
+                        <option value="cburnett" selected>Cburnett (Default)</option>
+                        <option value="alpha">Alpha</option>
+                        <option value="chessnut">Chessnut</option>
+                        <option value="merida">Merida</option>
+                        <option value="staunty">Staunty</option>
+                        <option value="tatiana">Tatiana</option>
+                    </select>
                 </div>
 
                 <!-- Voice Chat -->
