@@ -178,25 +178,34 @@ function setupChessboard() {
 function applyPieceTheme(theme) {
     if (!chessground) return;
     
-    // Cburnett pieces are the default for chessground, so we just need to ensure they load properly
-    const pieceBaseUrl = `https://lichess1.org/assets/piece/${theme.DirectoryName}/`;
+    const pieceBaseUrl = `https://unpkg.com/chessground@7.11.0/assets/pieces/${theme.DirectoryName}/`;
     
-    // Apply custom CSS for piece theme if needed
-    const existingStyle = document.getElementById('piece-theme-style');
-    if (existingStyle) {
-        existingStyle.remove();
-    }
+    // Remove old style if it exists
+    const oldStyle = document.getElementById('piece-theme-style');
+    if (oldStyle) oldStyle.remove();
     
+    // Create new style
     const style = document.createElement('style');
     style.id = 'piece-theme-style';
     style.textContent = `
-        .cg-wrap piece {
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-        }
+        .cg-wrap piece.pawn.white { background-image: url("${pieceBaseUrl}wp.svg") !important; }
+        .cg-wrap piece.knight.white { background-image: url("${pieceBaseUrl}wn.svg") !important; }
+        .cg-wrap piece.bishop.white { background-image: url("${pieceBaseUrl}wb.svg") !important; }
+        .cg-wrap piece.rook.white { background-image: url("${pieceBaseUrl}wr.svg") !important; }
+        .cg-wrap piece.queen.white { background-image: url("${pieceBaseUrl}wq.svg") !important; }
+        .cg-wrap piece.king.white { background-image: url("${pieceBaseUrl}wk.svg") !important; }
+        
+        .cg-wrap piece.pawn.black { background-image: url("${pieceBaseUrl}bp.svg") !important; }
+        .cg-wrap piece.knight.black { background-image: url("${pieceBaseUrl}bn.svg") !important; }
+        .cg-wrap piece.bishop.black { background-image: url("${pieceBaseUrl}bb.svg") !important; }
+        .cg-wrap piece.rook.black { background-image: url("${pieceBaseUrl}br.svg") !important; }
+        .cg-wrap piece.queen.black { background-image: url("${pieceBaseUrl}bq.svg") !important; }
+        .cg-wrap piece.king.black { background-image: url("${pieceBaseUrl}bk.svg") !important; }
     `;
     document.head.appendChild(style);
+    
+    // Force the board to redraw with new pieces
+    chessground.redrawAll();
 }
 
 // Fallback simple chess board
