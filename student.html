@@ -1,191 +1,161 @@
 <!DOCTYPE html>
 <html data-bs-theme="light">
 <head>
-<title>IQ4U Chess</title>
-<meta charset="utf-8" content="width=device-width, initial-scale=1 maximum-scale=1.0" name="viewport"/>
-<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
-<meta content="no-cache" http-equiv="Pragma"/>
-<meta content="0" http-equiv="Expires"/>
-<link href="./src/app/favicon.ico?v=2" rel="shortcut icon" type="image/x-icon"/>
-<link href="./src/app/manifest.json" rel="manifest"/>
-<!-- JQuery -->
-<script src="./src/lib/jquery/jquery-3.7.1.min.js"></script>
-<!-- Bootstrap -->
-<link href="./src/lib/bootstrap/bootstrap-5.3.5.min.css" rel="stylesheet"/>
-<script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
-<!-- Chess libraries -->
-<script src="https://cdn.jsdelivr.net/npm/chess.js@0.12.0/chess.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chessground@8.3.5/dist/chessground.min.js"></script>
-<!-- MiniColors -->
-<link href="./src/lib/jquery-minicolors/jquery.minicolors.css" rel="stylesheet"/>
-<script src="./src/lib/jquery-minicolors/jquery.minicolors.min.js"></script>
-<!-- Core CSS -->
-<link href="./src/app/chess-pgn-trainer.css" rel="stylesheet"/>
-<style>
-  .cg-wrap {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-  .cg-board {
-    background-image: url('https://cdn.jsdelivr.net/npm/chessground@8.3.5/assets/board.svg');
-    background-size: cover;
-  }
-</style>
+  <title>IQ4U Chess</title>
+  <meta charset="utf-8" content="width=device-width, initial-scale=1 maximum-scale=1.0" name="viewport"/>
+  <meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
+  <meta content="no-cache" http-equiv="Pragma"/>
+  <meta content="0" http-equiv="Expires"/>
+  <link href="./src/app/favicon.ico?v=2" rel="shortcut icon" type="image/x-icon"/>
+  <link href="./src/app/manifest.json" rel="manifest"/>
+  <!-- JQuery -->
+  <script src="./src/lib/jquery/jquery-3.7.1.min.js"></script>
+  <!-- Bootstrap -->
+  <link href="./src/lib/bootstrap/bootstrap-5.3.5.min.css" rel="stylesheet"/>
+  <script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
+  <!-- MiniColors -->
+  <link href="./src/lib/jquery-minicolors/jquery.minicolors.css" rel="stylesheet"/>
+  <script src="./src/lib/jquery-minicolors/jquery.minicolors.min.js"></script>
+  <!-- Core Application -->
+  <link href="./src/app/chess-pgn-trainer.css" rel="stylesheet"/>
+  <script src="./src/app/chess-pgn-trainer.js" type="module"></script>
+  <!-- Annotation -->
+  <link href="./src/components/annotation/annotate.css" rel="stylesheet"/>
+
+  <!-- Chessground -->
+  <link rel="stylesheet" href="https://unpkg.com/chessground@8.2.1/assets/chessground.base.css">
+  <script src="https://unpkg.com/chessground@8.2.1/chessground.min.js"></script>
+  <!-- Chess.js for move legality -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+  <style>
+    #myBoard {
+      width: 100%;
+      max-width: 600px;
+      aspect-ratio: 1/1;
+      margin: auto;
+    }
+    #notation {
+      max-width: 600px;
+      margin: 10px auto;
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+    }
+  </style>
 </head>
-<body style="overscroll-behavior-y: none;overflow: hidden;">
-<!-- Your existing header and HTML structure remains unchanged until the board -->
+<body>
+  <header class="d-flex justify-content-between align-items-center bg-dark text-white p-2">
+    <h3 class="ms-2">IQ4U Chess</h3>
+    <div class="me-2">
+      <button class="btn btn-success btn-sm me-2" id="joinCall">Join Call</button>
+      <button class="btn btn-danger btn-sm me-2" id="leaveCall">Leave Call</button>
+      <button class="btn btn-warning btn-sm me-2" id="muteToggle">Mute</button>
+      <button class="btn btn-outline-light btn-sm" id="logoutBtn">Logout</button>
+    </div>
+  </header>
 
-<!-- Replace chessboard divs -->
-<div class="cg-wrap" id="myBoard"></div>
-<div class="cg-wrap" id="blankBoard" style="display:none;"></div>
+  <div class="container mt-3">
+    <select id="pgnSelector" class="form-select mb-3"></select>
+    <div id="myBoard"></div>
+    <div id="notation"></div>
+  </div>
 
-<!-- Rest of your HTML remains exactly the same -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      databaseURL: "YOUR_DATABASE_URL",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-<script type="module">
-  // Firebase Initialization
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    document.addEventListener("DOMContentLoaded", () => {
+      const boardElement = document.getElementById("myBoard");
+      const notationElement = document.getElementById("notation");
+      const pgnSelector = document.getElementById("pgnSelector");
+      const chess = new Chess();
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAI1oPe7OL78JQtFjscD5y_Wdp5NqoB-J0",
-    authDomain: "iq4u-chess-b2835.firebaseapp.com",
-    databaseURL: "https://iq4u-chess-b2835-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "iq4u-chess-b2835",
-    storageBucket: "iq4u-chess-b2835.appspot.com",
-    messagingSenderId: "1029237519163",
-    appId: "1:1029237519163:web:2b060008c0f11bfe5a3d1e"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth();
-  const db = getFirestore();
-
-  // Authentication Logic
-  document.getElementById('loginBtn').addEventListener('click', async () => {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const uid = userCredential.user.uid;
-      const userDoc = await getDoc(doc(db, "users", uid));
-      const role = userDoc.data().role;
-
-      if (role === "admin") window.location.href = "admin.html";
-      else if (role === "student") window.location.href = "student.html";
-      else alert("Unknown role. Contact admin.");
-    } catch (error) {
-      alert("Login failed: " + error.message);
-    }
-  });
-
-  document.getElementById("logoutBtn").onclick = () => {
-    signOut(auth).then(() => window.location.href = "index.html");
-  };
-
-  // Voice Call Demo Logic
-  let localStream, isMuted = false;
-  document.getElementById("joinCall").onclick = async () => {
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    alert("Voice joined (demo mode)");
-  };
-  document.getElementById("leaveCall").onclick = () => {
-    if (localStream) localStream.getTracks().forEach(t => t.stop());
-    alert("Left voice call");
-  };
-  document.getElementById("muteToggle").onclick = () => {
-    if (!localStream) return;
-    isMuted = !isMuted;
-    localStream.getAudioTracks().forEach(track => track.enabled = !isMuted);
-    document.getElementById("muteToggle").innerText = isMuted ? "Unmute" : "Mute";
-  };
-</script>
-
-<script>
-// Chessground Implementation
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialize chess.js
-  window.chess = new Chess();
-  
-  // Chessground configuration
-  const config = {
-    coordinates: true,
-    movable: {
-      free: false,
-      color: 'white',
-      events: {
-        after: function(orig, dest) {
-          const move = window.chess.move({
-            from: orig,
-            to: dest,
-            promotion: 'q' // default to queen
-          });
-          if (move === null) return false;
-          
-          window.chessground.set({
-            fen: window.chess.fen(),
-            turnColor: window.chess.turn() === 'w' ? 'white' : 'black',
-            movable: {
-              color: window.chess.turn() === 'w' ? 'white' : 'black',
-              dests: getPossibleMoves()
+      const ground = Chessground(boardElement, {
+        draggable: {
+          enabled: true,
+          showGhost: true,
+          events: {
+            after: (orig, dest) => {
+              const move = chess.move({ from: orig, to: dest, promotion: 'q' });
+              if (move === null) {
+                ground.set({ fen: chess.fen() });
+                return;
+              }
+              updateBoard();
+              syncMoveToFirebase(move);
             }
-          });
-          return true;
-        }
-      }
-    },
-    highlight: {
-      lastMove: true,
-      check: true
-    }
-  };
-
-  // Initialize main board
-  window.chessground = Chessground(document.getElementById('myBoard'), config);
-
-  // Helper function to get possible moves
-  function getPossibleMoves() {
-    const dests = {};
-    window.chess.SQUARES.forEach(s => {
-      const moves = window.chess.moves({
-        square: s,
-        verbose: true
+          }
+        },
+        highlight: {
+          lastMove: true,
+          check: true
+        },
+        animation: { duration: 200 },
+        coordinates: true,
+        movable: {
+          free: false,
+          color: 'both',
+          dests: () => computeLegalDests()
+        },
       });
-      if (moves.length) dests[s] = moves.map(m => m.to);
-    });
-    return dests;
-  }
 
-  // Initialize with start position
-  window.chessground.set({
-    fen: window.chess.fen(),
-    movable: { color: 'white', dests: getPossibleMoves() }
-  });
+      function computeLegalDests() {
+        const dests = new Map();
+        chess.SQUARES.forEach(sq => {
+          const moves = chess.moves({ square: sq, verbose: true });
+          if (moves.length)
+            dests.set(sq, moves.map(m => m.to));
+        });
+        return dests;
+      }
 
-  // PGN loader
-  document.getElementById("pgnSelector").addEventListener("change", function() {
-    const selectedFile = this.value;
-    if (!selectedFile) return;
-    
-    fetch(`./pgns/${selectedFile}`)
-      .then(res => res.text())
-      .then(pgnText => {
-        window.chess.loadPgn(pgnText);
-        window.chessground.set({
-          fen: window.chess.fen(),
-          turnColor: window.chess.turn() === 'w' ? 'white' : 'black',
-          movable: {
-            color: window.chess.turn() === 'w' ? 'white' : 'black',
-            dests: getPossibleMoves()
+      function updateBoard() {
+        ground.set({ fen: chess.fen(), movable: { dests: computeLegalDests() } });
+        notationElement.textContent = chess.pgn();
+      }
+
+      function syncMoveToFirebase(move) {
+        db.ref("livegame/moves").push({ move: move.san, fen: chess.fen() });
+      }
+
+      function loadPGNs() {
+        db.ref("studies").once("value").then(snapshot => {
+          const data = snapshot.val();
+          pgnSelector.innerHTML = '<option disabled selected>Select a PGN Study</option>';
+          for (let key in data) {
+            pgnSelector.innerHTML += `<option value="${key}">${key}</option>`;
           }
         });
-      })
-      .catch(err => console.error("PGN load error:", err));
-  });
-});
-</script>
+      }
 
+      pgnSelector.addEventListener("change", () => {
+        const studyKey = pgnSelector.value;
+        db.ref(`studies/${studyKey}`).once("value").then(snapshot => {
+          const pgn = snapshot.val();
+          chess.reset();
+          chess.load_pgn(pgn);
+          updateBoard();
+        });
+      });
+
+      loadPGNs();
+      updateBoard();
+    });
+  </script>
 </body>
 </html>
