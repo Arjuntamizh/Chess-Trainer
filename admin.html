@@ -1,30 +1,24 @@
 <!DOCTYPE html>
+
 <html data-bs-theme="light">
-
 <head>
-	<title>Chess PGN Trainer - Admin Dashboard</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1.0" charset="UTF-8" />
-	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-	<meta http-equiv="Pragma" content="no-cache">
-	<meta http-equiv="Expires" content="0">
-
-	<link rel="shortcut icon" type="image/x-icon" href="./src/app/favicon.ico?v=2" />
-
-	<!-- JQuery (https://jquery.com/) -->
-	<script src="./src/lib/jquery/jquery-3.7.1.min.js"></script>
-
-	<!-- Bootstrap (https://getbootstrap.com/docs/5.3/getting-started/download/) -->
-	<link rel="stylesheet" href="./src/lib/bootstrap/bootstrap-5.3.5.min.css">
-	<script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
-
-	<!-- Chessboardjs -->
-	<link rel="stylesheet" href="./src/lib/chessboardjs/chessboard-1.0.0.css">
-	<script src="./src/lib/chessboardjs/chessboard-1.0.0-modified.js"></script>
-
-	<!-- Core Application -->
-	<link rel="stylesheet" href="./src/app/chess-pgn-trainer.css">
-
-	<style>
+<title>Chess PGN Trainer - Admin Dashboard</title>
+<meta charset="utf-8" content="width=device-width, initial-scale=1 maximum-scale=1.0" name="viewport"/>
+<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<meta content="0" http-equiv="Expires"/>
+<link href="./src/app/favicon.ico?v=2" rel="shortcut icon" type="image/x-icon"/>
+<!-- JQuery (https://jquery.com/) -->
+<script src="./src/lib/jquery/jquery-3.7.1.min.js"></script>
+<!-- Bootstrap (https://getbootstrap.com/docs/5.3/getting-started/download/) -->
+<link href="./src/lib/bootstrap/bootstrap-5.3.5.min.css" rel="stylesheet"/>
+<script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
+<!-- Chessboardjs -->
+<link href="./src/lib/chessboardjs/chessboard-1.0.0.css" rel="stylesheet"/>
+<script src="./src/lib/chessboardjs/chessboard-1.0.0-modified.js"></script>
+<!-- Core Application -->
+<link href="./src/app/chess-pgn-trainer.css" rel="stylesheet"/>
+<style>
 		.admin-grid {
 			display: grid;
 			grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -236,187 +230,168 @@
 		}
 	</style>
 </head>
-
 <body style="background-color: #f5f5f5; margin: 0; padding: 0;">
+<header class="d-flex justify-content-end align-items-center bg-dark text-white p-2">
+<button class="btn btn-outline-light btn-sm me-2" id="logoutBtn">Logout</button>
+</header>
 
-	<!-- Session Controls Header -->
-	<div class="session-controls">
-		<div class="session-header">
-			<h1 style="margin: 0; color: #333;">Chess PGN Trainer - Admin Dashboard</h1>
-			<p style="margin: 5px 0 0 0; color: #666;">Real-time student monitoring and control</p>
-		</div>
-
-		<!-- Session Information -->
-		<div class="session-info">
-			<div class="info-card">
-				<div class="info-title">Session Status</div>
-				<div class="info-value" id="sessionStatus">Active</div>
-			</div>
-			<div class="info-card">
-				<div class="info-title">Connected Students</div>
-				<div class="info-value" id="connectedCount">3</div>
-			</div>
-			<div class="info-card">
-				<div class="info-title">Current Puzzle</div>
-				<div class="info-value" id="currentPuzzle">5 / 15</div>
-			</div>
-			<div class="info-card">
-				<div class="info-title">Session Time</div>
-				<div class="info-value" id="sessionTime">15:42</div>
-			</div>
-		</div>
-
-		<!-- Global Controls -->
-		<div class="global-controls">
-			<button class="global-btn btn-load" onclick="loadPuzzleSet()">
+<!-- Session Controls Header -->
+<div class="session-controls">
+<div class="session-header">
+<h1 style="margin: 0; color: #333;">Chess PGN Trainer - Admin Dashboard</h1>
+<p style="margin: 5px 0 0 0; color: #666;">Real-time student monitoring and control</p>
+</div>
+<!-- Session Information -->
+<div class="session-info">
+<div class="info-card">
+<div class="info-title">Session Status</div>
+<div class="info-value" id="sessionStatus">Active</div>
+</div>
+<div class="info-card">
+<div class="info-title">Connected Students</div>
+<div class="info-value" id="connectedCount">3</div>
+</div>
+<div class="info-card">
+<div class="info-title">Current Puzzle</div>
+<div class="info-value" id="currentPuzzle">5 / 15</div>
+</div>
+<div class="info-card">
+<div class="info-title">Session Time</div>
+<div class="info-value" id="sessionTime">15:42</div>
+</div>
+</div>
+<!-- Global Controls -->
+<div class="global-controls">
+<button class="global-btn btn-load" onclick="loadPuzzleSet()">
 				📁 Load Puzzle Set
 			</button>
-			<button class="global-btn btn-start" onclick="startSession()">
+<button class="global-btn btn-start" onclick="startSession()">
 				▶️ Start Session
 			</button>
-			<button class="global-btn btn-pause" onclick="pauseSession()">
+<button class="global-btn btn-pause" onclick="pauseSession()">
 				⏸️ Pause Session
 			</button>
-			<button class="global-btn btn-stop" onclick="stopSession()">
+<button class="global-btn btn-stop" onclick="stopSession()">
 				⏹️ End Session
 			</button>
-		</div>
-	</div>
-
-	<!-- Student Boards Grid -->
-	<div class="admin-grid" id="studentGrid">
-		
-		<!-- Student 1 -->
-		<div class="student-board-container">
-			<div class="student-header">
-				<div>
-					<span class="student-name">Alex Johnson</span>
-					<span class="connection-status connected" id="status-1"></span>
-				</div>
-			</div>
-			
-			<div class="student-controls">
-				<button class="control-btn voice-btn unmuted" id="voice-1" onclick="toggleVoice(1)">
+</div>
+</div>
+<!-- Student Boards Grid -->
+<div class="admin-grid" id="studentGrid">
+<!-- Student 1 -->
+<div class="student-board-container">
+<div class="student-header">
+<div>
+<span class="student-name">Alex Johnson</span>
+<span class="connection-status connected" id="status-1"></span>
+</div>
+</div>
+<div class="student-controls">
+<button class="control-btn voice-btn unmuted" id="voice-1" onclick="toggleVoice(1)">
 					🔊 Unmuted
 				</button>
-				<button class="control-btn drawing-btn enabled" id="drawing-1" onclick="toggleDrawing(1)">
+<button class="control-btn drawing-btn enabled" id="drawing-1" onclick="toggleDrawing(1)">
 					✏️ Drawing ON
 				</button>
-			</div>
-			
-			<div class="mini-chessboard" id="board-1"></div>
-			
-			<div class="student-stats">
-				<div class="stat-item">
-					<span class="stat-label">Progress</span>
-					<span class="stat-value" id="progress-1">75%</span>
-				</div>
-				<div class="stat-item">
-					<span class="stat-label">Accuracy</span>
-					<span class="stat-value" id="accuracy-1">92%</span>
-				</div>
-			</div>
-		</div>
-
-		<!-- Student 2 -->
-		<div class="student-board-container">
-			<div class="student-header">
-				<div>
-					<span class="student-name">Sarah Chen</span>
-					<span class="connection-status connected" id="status-2"></span>
-				</div>
-			</div>
-			
-			<div class="student-controls">
-				<button class="control-btn voice-btn muted" id="voice-2" onclick="toggleVoice(2)">
+</div>
+<div class="mini-chessboard" id="board-1"></div>
+<div class="student-stats">
+<div class="stat-item">
+<span class="stat-label">Progress</span>
+<span class="stat-value" id="progress-1">75%</span>
+</div>
+<div class="stat-item">
+<span class="stat-label">Accuracy</span>
+<span class="stat-value" id="accuracy-1">92%</span>
+</div>
+</div>
+</div>
+<!-- Student 2 -->
+<div class="student-board-container">
+<div class="student-header">
+<div>
+<span class="student-name">Sarah Chen</span>
+<span class="connection-status connected" id="status-2"></span>
+</div>
+</div>
+<div class="student-controls">
+<button class="control-btn voice-btn muted" id="voice-2" onclick="toggleVoice(2)">
 					🔇 Muted
 				</button>
-				<button class="control-btn drawing-btn disabled" id="drawing-2" onclick="toggleDrawing(2)">
+<button class="control-btn drawing-btn disabled" id="drawing-2" onclick="toggleDrawing(2)">
 					✏️ Drawing OFF
 				</button>
-			</div>
-			
-			<div class="mini-chessboard" id="board-2"></div>
-			
-			<div class="student-stats">
-				<div class="stat-item">
-					<span class="stat-label">Progress</span>
-					<span class="stat-value" id="progress-2">60%</span>
-				</div>
-				<div class="stat-item">
-					<span class="stat-label">Accuracy</span>
-					<span class="stat-value" id="accuracy-2">88%</span>
-				</div>
-			</div>
-		</div>
-
-		<!-- Student 3 -->
-		<div class="student-board-container">
-			<div class="student-header">
-				<div>
-					<span class="student-name">Michael Rodriguez</span>
-					<span class="connection-status disconnected" id="status-3"></span>
-				</div>
-			</div>
-			
-			<div class="student-controls">
-				<button class="control-btn voice-btn muted" id="voice-3" onclick="toggleVoice(3)" disabled>
+</div>
+<div class="mini-chessboard" id="board-2"></div>
+<div class="student-stats">
+<div class="stat-item">
+<span class="stat-label">Progress</span>
+<span class="stat-value" id="progress-2">60%</span>
+</div>
+<div class="stat-item">
+<span class="stat-label">Accuracy</span>
+<span class="stat-value" id="accuracy-2">88%</span>
+</div>
+</div>
+</div>
+<!-- Student 3 -->
+<div class="student-board-container">
+<div class="student-header">
+<div>
+<span class="student-name">Michael Rodriguez</span>
+<span class="connection-status disconnected" id="status-3"></span>
+</div>
+</div>
+<div class="student-controls">
+<button class="control-btn voice-btn muted" disabled="" id="voice-3" onclick="toggleVoice(3)">
 					🔇 Muted
 				</button>
-				<button class="control-btn drawing-btn disabled" id="drawing-3" onclick="toggleDrawing(3)" disabled>
+<button class="control-btn drawing-btn disabled" disabled="" id="drawing-3" onclick="toggleDrawing(3)">
 					✏️ Drawing OFF
 				</button>
-			</div>
-			
-			<div class="mini-chessboard" id="board-3" style="opacity: 0.5;"></div>
-			
-			<div class="student-stats">
-				<div class="stat-item">
-					<span class="stat-label">Progress</span>
-					<span class="stat-value" id="progress-3">--</span>
-				</div>
-				<div class="stat-item">
-					<span class="stat-label">Accuracy</span>
-					<span class="stat-value" id="accuracy-3">--</span>
-				</div>
-			</div>
-		</div>
-
-		<!-- Student 4 -->
-		<div class="student-board-container">
-			<div class="student-header">
-				<div>
-					<span class="student-name">Emma Thompson</span>
-					<span class="connection-status connected" id="status-4"></span>
-				</div>
-			</div>
-			
-			<div class="student-controls">
-				<button class="control-btn voice-btn unmuted" id="voice-4" onclick="toggleVoice(4)">
+</div>
+<div class="mini-chessboard" id="board-3" style="opacity: 0.5;"></div>
+<div class="student-stats">
+<div class="stat-item">
+<span class="stat-label">Progress</span>
+<span class="stat-value" id="progress-3">--</span>
+</div>
+<div class="stat-item">
+<span class="stat-label">Accuracy</span>
+<span class="stat-value" id="accuracy-3">--</span>
+</div>
+</div>
+</div>
+<!-- Student 4 -->
+<div class="student-board-container">
+<div class="student-header">
+<div>
+<span class="student-name">Emma Thompson</span>
+<span class="connection-status connected" id="status-4"></span>
+</div>
+</div>
+<div class="student-controls">
+<button class="control-btn voice-btn unmuted" id="voice-4" onclick="toggleVoice(4)">
 					🔊 Unmuted
 				</button>
-				<button class="control-btn drawing-btn enabled" id="drawing-4" onclick="toggleDrawing(4)">
+<button class="control-btn drawing-btn enabled" id="drawing-4" onclick="toggleDrawing(4)">
 					✏️ Drawing ON
 				</button>
-			</div>
-			
-			<div class="mini-chessboard" id="board-4"></div>
-			
-			<div class="student-stats">
-				<div class="stat-item">
-					<span class="stat-label">Progress</span>
-					<span class="stat-value" id="progress-4">45%</span>
-				</div>
-				<div class="stat-item">
-					<span class="stat-label">Accuracy</span>
-					<span class="stat-value" id="accuracy-4">95%</span>
-				</div>
-			</div>
-		</div>
-
-	</div>
-
-	<script>
+</div>
+<div class="mini-chessboard" id="board-4"></div>
+<div class="student-stats">
+<div class="stat-item">
+<span class="stat-label">Progress</span>
+<span class="stat-value" id="progress-4">45%</span>
+</div>
+<div class="stat-item">
+<span class="stat-label">Accuracy</span>
+<span class="stat-value" id="accuracy-4">95%</span>
+</div>
+</div>
+</div>
+</div>
+<script>
 		// Student states
 		let students = {
 			1: { name: "Alex Johnson", connected: true, muted: false, drawing: true, progress: 75, accuracy: 92 },
@@ -540,5 +515,18 @@
 		}, 5000);
 	</script>
 
+<script type="module">
+  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const auth = getAuth();
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    signOut(auth).then(() => {
+      alert("Logged out");
+      window.location.href = "index.html";
+    }).catch((error) => {
+      console.error("Logout Error", error);
+    });
+  });
+</script>
 </body>
 </html>
