@@ -91,7 +91,14 @@
 <div class="row fs-4">
 <div class="container align-items-center col-12 p-2" style="text-align:center">
 <button class="btn btn-primary fs-5" id="openPGN_button" style="display: inline-block" type="button">Open PGN File</button>
-	
+<select id="pgnSelector" class="form-select fs-5 mt-2" style="max-height: 200px; overflow-y: auto;">
+  <option selected disabled>Select PGN Study</option>
+  <option value="fork.pgn">Fork</option>
+  <option value="pin.pgn">Pin</option>
+  <option value="skewer.pgn">Skewer</option>
+  <option value="discovered.pgn">Discovered Attack</option>
+</select>
+
 <input accept=".pgn" id="openPGN" style="display: none" type="file"/>
 <button class="btn btn-primary fs-5" id="btn_reset" style="display: inline-block">Reset</button>
 </div>
