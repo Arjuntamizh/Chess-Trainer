@@ -1,641 +1,1418 @@
 <!DOCTYPE html>
-
 <html data-bs-theme="light">
 <head>
-<title>IQ4U Chess</title>
-<meta charset="utf-8" content="width=device-width, initial-scale=1 maximum-scale=1.0" name="viewport"/>
-<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
-<meta content="no-cache" http-equiv="Pragma"/>
-<meta content="0" http-equiv="Expires"/>
-<link href="./src/app/favicon.ico?v=2" rel="shortcut icon" type="image/x-icon"/>
-<link href="./src/app/manifest.json" rel="manifest"/>
-<!-- JQuery (https://jquery.com/) -->
-<script src="./src/lib/jquery/jquery-3.7.1.min.js"></script>
-<!-- Bootstrap (https://getbootstrap.com/docs/5.3/getting-started/download/) -->
-<link href="./src/lib/bootstrap/bootstrap-5.3.5.min.css" rel="stylesheet"/>
-<script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
-<!-- Chessboardjs -->
-<!-- Modified copy of chessboardJS in order to handle resizing on width AND height so that the board never gets larger than the vertical space -->
-<link href="./src/lib/chessboardjs/chessboard-1.0.0.css" rel="stylesheet"/>
-<script src="./src/lib/chessboardjs/chessboard-1.0.0-modified.js"></script>
-<!-- MiniColors (https://github.com/claviska/jquery-minicolors) -->
-<link href="./src/lib/jquery-minicolors/jquery.minicolors.css" rel="stylesheet"/>
-<script src="./src/lib/jquery-minicolors/jquery.minicolors.min.js"></script>
-<!-- Core Application -->
-<link href="./src/app/chess-pgn-trainer.css" rel="stylesheet"/>
-<script src="./src/app/chess-pgn-trainer.js" type="module"></script>
-<!-- Annotation -->
-<link href="./src/components/annotation/annotate.css" rel="stylesheet"/>
+    <title>IQ4U Chess</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Chessground CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/chessground@9.2.1/dist/chessground.min.css" rel="stylesheet">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Chess.js for game logic -->
+    <script src="https://cdn.jsdelivr.net/npm/chess.js@1.0.0-beta.6/dist/chess.min.js"></script>
+    
+    <!-- Chessground JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chessground@9.2.1/dist/chessground.min.js"></script>
+    
+
+    
+    <!-- Custom Styles -->
+    <style>
+        body {
+            overscroll-behavior-y: none;
+            overflow: hidden;
+        }
+        
+        .prevent-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        .chessboard {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            height: 500px;
+        }
+        
+        #blankBoard {
+            display: none;
+        }
+        
+        .puzzlenumbers {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .colorpicker {
+            width: 100px;
+        }
+        
+        .settingstextinput {
+            background: transparent;
+        }
+        
+        #loginModal {
+            backdrop-filter: blur(5px);
+        }
+        
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        [data-bs-theme="dark"] .login-container {
+            background: rgba(33, 37, 41, 0.95);
+        }
+        
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .connection-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .connection-status.connected {
+            background-color: #28a745;
+        }
+        
+        .connection-status.disconnected {
+            background-color: #dc3545;
+        }
+        
+        .connection-status.connecting {
+            background-color: #ffc107;
+        }
+        
+        /* Dark mode styles */
+        [data-bs-theme="dark"] {
+            background-color: #212529;
+            color: #fff;
+        }
+        
+        [data-bs-theme="dark"] .bg-light {
+            background-color: #343a40 !important;
+        }
+        
+        [data-bs-theme="dark"] .text-dark {
+            color: #fff !important;
+        }
+        
+        /* Chessground theme adjustments */
+        .cg-board {
+            background-image: none;
+        }
+        
+        .cg-square.light {
+            background-color: var(--light-square-color, #f0d9b5);
+        }
+        
+        .cg-square.dark {
+            background-color: var(--dark-square-color, #b58863);
+        }
+        
+        /* Annotation panel styles */
+        #comment_panel {
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 8px;
+        }
+        
+        [data-bs-theme="dark"] #comment_panel {
+            background: rgba(33, 37, 41, 0.8);
+        }
+        
+        /* PGN Games list */
+        .game-item {
+            cursor: pointer;
+            padding: 8px;
+            border: 1px solid #ddd;
+            margin: 2px 0;
+            border-radius: 4px;
+        }
+        
+        .game-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .game-item.active {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        [data-bs-theme="dark"] .game-item {
+            border-color: #495057;
+        }
+        
+        [data-bs-theme="dark"] .game-item:hover {
+            background-color: #495057;
+        }
+    </style>
 </head>
-<body style="overscroll-behavior-y: none;overflow: hidden;">
-<header class="d-flex justify-content-between align-items-center bg-dark text-white p-2">
-<h3 class="ms-2">IQ4U Chess</h3>
-<div class="me-2">
-<button class="btn btn-success btn-sm me-2" id="joinCall">Join Call</button>
-<button class="btn btn-danger btn-sm me-2" id="leaveCall">Leave Call</button>
-<button class="btn btn-warning btn-sm me-2" id="muteToggle">Mute</button>
-<button class="btn btn-outline-light btn-sm" id="logoutBtn">Logout</button>
-</div>
-</header>
-<div>
-<input id="email" placeholder="Email" type="email"/>
-<input id="password" placeholder="Password" type="password"/>
-<button id="loginBtn">Login</button>
-</div>
-<!-- Layout for Desktops and Tablets -->
-<div class="container-fluid p-0" id="application" style="overflow: hidden;">
-<div class="row mx-0" id="main_content">
-<!-- Content Panel-->
-<div class="col-12 order-1 col-lg-3 order-lg-1">
-<div class="d-block d-sm-none d-lg-block" id="annotation_col">
-<div class="container p-1 fs-6" id="comment_panel" style="overflow-y: auto; max-height: 90vh; ">
-<div class="fs-3" id="comment_event_name" style="padding-top: 10px;"></div>
-<div class="col-12" id="comment_annotation"></div>
-</div>
-</div>
-</div>
-<!-- Board -->
-<div class="col-sm-7 order-sm-2 col-lg-6 order-lg-2 align-items-center g-0" id="playingarea">
-<div class="container-fluid g-0 prevent-select">
-<!-- Title -->
-<div class="p-3 g-0 d-sm-none text-bg-primary" style="padding-top: 2px!important; padding-bottom: 2px!important;">
-<div class="row justify-content-between align-items-center">
-<div class="h2 col-8" id="title_sidebar" style="margin-bottom: 0;">IQ4U Chess</div>
-<div class="col-2">
-<button aria-controls="offcanvasResponsive" class="btn btn-primary d-lg-none text-end fs-2" data-bs-target="#offcanvasResponsive" data-bs-toggle="offcanvas" type="button">☰</button>
-</div>
-</div>
-</div>
-<div class="align-self-center" style="padding-top: 10px; padding-bottom: 10px;">
-<!-- The boards -->
-<div class="chessboard" id="myBoard"></div>
-<div class="chessboard" id="blankBoard"></div>
-</div>
-<!-- The move indicator -->
-<div class="p-0 fs-5" id="moveturn" style="text-align: center;"></div>
-</div>
-</div>
-<!-- Menu Panel-->
-<div class="col-sm-5 order-sm-3 col-lg-3 order-lg-3 prevent-select" id="status_area" style="display: flex;flex-direction: column; overflow-y: auto; max-height: 95vh;">
-<div class="container">
-<div id="mainAppContainer">
-<!-- Title -->
-<div class="p-3 d-none d-sm-block h1 fs-2" id="title_topbar">IQ4U Chess</div>
-<!-- Options -->
-<div aria-labelledby="offcanvasResponsiveLabel" class="offcanvas-sm offcanvas-end p-0" id="offcanvasResponsive" style="width: auto; max-width: none;" tabindex="-1">
-<div class="offcanvas-header">
-<h5 class="offcanvas-title" id="offcanvasResponsiveLabel"></h5>
-<button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasResponsive" id="close_sidebar" type="button"></button>
-</div>
-<div class="offcanvas-body">
-<div class="row fs-4">
-<div class="container align-items-center col-12 p-2" style="text-align:center">
-<button class="btn btn-primary fs-5" id="openPGN_button" style="display: inline-block" type="button">Open PGN File</button>
-<select id="pgnSelector" class="form-select fs-5 mt-2" style="max-height: 200px; overflow-y: auto;">
-  <option selected disabled>Select PGN Study</option>
-  <option value="fork.pgn">Fork</option>
-  <option value="pin.pgn">Pin</option>
-  <option value="skewer.pgn">Skewer</option>
-  <option value="discovered.pgn">Discovered Attack</option>
-</select>
+<body>
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="login-container text-center">
+                        <h2 class="mb-4">IQ4U Chess</h2>
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <input type="email" class="form-control" id="email" placeholder="Email" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="password" class="form-control" id="password" placeholder="Password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 mb-3" id="loginBtn">Login</button>
+                            <button type="button" class="btn btn-outline-secondary w-100 mb-3" id="registerBtn">Register</button>
+                            <button type="button" class="btn btn-success w-100" id="demoBtn">Try Demo Mode</button>
+                        </form>
+                        <div id="loginError" class="alert alert-danger mt-3" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<input accept=".pgn" id="openPGN" style="display: none" type="file"/>
-<button class="btn btn-primary fs-5" id="btn_reset" style="display: inline-block">Reset</button>
-</div>
-<div class="d-flex justify-content-center">
-<button class="btn btn-primary fs-5" id="btn_library" style="display: inline-block">Library</button>
-</div>
-<div class="container p-1 col-12 fs-5">
-<hr class="m-2"/>
-<div class="form-check form-switch">
-<input class="form-check-input" id="randomizeSet" role="switch" type="checkbox"/>
-<label class="form-check-label" for="randomizeSet">Randomize</label>
-</div>
-<div class="form-check form-switch">
-<input class="form-check-input" id="playbothsides" role="switch" type="checkbox"/>
-<label class="form-check-label" for="playbothsides">Play both sides</label>
-</div>
-<div class="form-check form-switch">
-<input class="form-check-input" id="playoppositeside" role="switch" type="checkbox"/>
-<label class="form-check-label" for="playoppositeside">Play opposite
-												side</label>
-</div>
-<div class="form-check form-switch">
-<input class="form-check-input" id="flipped" role="switch" type="checkbox"/>
-<label class="form-check-label" for="flipped">Flipped</label>
-</div>
-<div class="form-check form-switch">
-<input class="form-check-input" id="manualadvance" role="switch" type="checkbox"/>
-<label class="form-check-label" for="manualadvance">Next button</label>
-</div>
-</div>
-<div class="container d-sm-none">
-<hr class="m-2"/>
-<div class="list-group">
-<a class="list-group-item list-group-item-action border-0" data-bs-target="#settings-dialog" data-bs-toggle="modal" id="btn_SettingsSidebar">Settings ⛭</a>
-<a class="list-group-item list-group-item-action d-flex border-0" href="https://github.com/Arjuntamizh/Chess-Trainer" target="_blank">Github
-												Page
-												<img class="img-fluid" id="img_logo" src="./src/components/themes/light/github-mark-black.svg" style="width: 20px; height: 20px;margin-left: 10px;"/></a>
-<a aria-disabled="true" class="list-group-item list-group-item-action disabled border-0">
-<div class="list-group-item list-group-item-action border-0 fs-6" id="versionnumber_sidebar" style="text-align: right"></div>
-</a>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Status information-->
-<div class="container p-1 align-items-center fs-5" style="text-align: center;">
-<div class="d-none d-md-block">
-<hr class="m-2"/>
-</div>
-<div>
-								Puzzle <span class="puzzlenumbers" id="puzzleNumber"></span> of <span class="puzzlenumbers" id="puzzleNumbertotal"></span>
-</div>
-<div class="row">
-<div aria-label="Progress Bar" aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress col-11 p-0" role="progressbar" style="height: 30px">
-<div class="progress-bar fs-5" id="progressbar" style="width: 0%">0%</div>
-</div>
-<div class="col-1 p-0">
-<a data-toggle="tooltip" id="analysis_link" target="_blank" title="Analyze this position">
-<img id="img_anaylsis"/></a>
-</div>
-</div>
-<div class="container align-items-center p-3" style="text-align:center">
-<!-- Button trigger modal -->
-<button class="btn btn-primary fs-5" disabled="true" id="btn_starttest" style="display: inline-block">Start</button>
-<button class="btn btn-primary fs-5" disabled="true" id="btn_hint" style="display: none">Hint</button>
-<button class="btn btn-primary fs-5" id="btn_pause" style="display: none">Pause</button>
-<button class="btn btn-success fs-5" id="btn_next" style="display: none">Next</button>
-<button class="btn btn-primary fs-5" id="btn_restart" style="display: none">Restart</button>
-<button class="btn btn-primary fs-5" data-bs-target="#resmodal" data-bs-toggle="modal" disabled="true" id="btn_showresults" style="display: none">Show
-									Results</button>
-</div>
-</div>
-<!-- Settings Modal -->
-<div class="container">
-<div aria-labelledby="settings-dialog" class="modal fade" id="settings-dialog" role="dialog" tabindex="-1">
-<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<div class="modal-title fs-4" id="settings-label">Settings</div>
-<button aria-label="Close" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" id="settings_modal_close" type="button"></button>
-</div>
-<div class="modal-body fs-5">
-<div class="container text-center">
-<div class="row">
-<div class="col-6">
-<div class="form-group">
-<label for="Light-Color">Light Squares</label>
-<div class="col">
-<input class="form-control colorpicker fs-6" data-control="wheel" id="Light-Color" maxlength="7" size="7" type="text" value=""/>
-</div>
-</div>
-</div>
-<div class="col-6">
-<div class="form-group">
-<label for="Dark-Color">Dark Squares</label>
-<div class="col">
-<input class="form-control colorpicker fs-6" data-control="wheel" id="Dark-Color" maxlength="7" size="7" type="text" value=""/>
-</div>
-</div>
-</div>
-</div>
-<hr/>
-</div>
-<div class="container text-center">
-<div class="row">
-<div class="row">
-<div class="col-6">
-<label for="piece-select">Piece Style</label>
-</div>
-<div class="col-6">
-<select class="light-mode-control" id="piece-select" name="pieces"></select>
-</div>
-</div>
-</div>
-<hr/>
-</div>
-<div class="container text-center">
-<div class="row">
-<label class="form-label" for="pieceSpeed">Piece Movement
-														Speed</label>
-</div>
-<div class="row">
-<div class="col-2">
-<label for="piece-select">Slow</label>
-</div>
-<div class="col-8">
-<input class="form-range" id="pieceSpeed" max="500" min="0" step="50" style="direction: rtl" type="range" value="200"/>
-</div>
-<div class="col-2">
-<label for="piece-select">Fast</label>
-</div>
-</div>
-<hr/>
-</div>
-<!-- Lichess settings for access to Studies -->
-<div class="container text-center" id="setting_Lichess" style="display: none;">
-<div class="row">
-<div class="col-6">
-<div class="form-group">
-<label for="lichess_user_ID">Lichess UserID</label>
-<div class="col">
-<input class="form-control fs-6 settingstextinput" id="lichess_user_ID" onchange="" type="text" value=""/>
-</div>
-</div>
-</div>
-<div class="col-6">
-<div class="form-group">
-<label for="lichess_app_key">Lichess API token</label>
-<div class="col">
-<input class="form-control fs-6 settingstextinput" id="lichess_app_key" onchange="" type="password" value=""/>
-</div>
-</div>
-</div>
-</div>
-<hr/>
-</div>
-<div class="row">
-<div class="container">
-<div class="col-10">
-<div class="form-check form-switch">
-<label class="form-check-label" for="chk_darkmode">Dark
-																Mode</label>
-<input class="form-check-input" id="chk_darkmode" role="switch" type="checkbox"/>
-</div>
-</div>
-<div class="col">
-<div class="form-check form-switch">
-<input class="form-check-input" id="chk_legalMoves" role="switch" type="checkbox"/>
-<label class="form-check-label" for="chk_legalMoves">Show
-																legal moves</label>
-</div>
-</div>
-<div class="col">
-<div class="form-check form-switch">
-<input class="form-check-input" id="chk_circlesarrows" role="switch" type="checkbox"/>
-<label class="form-check-label" for="chk_circlesarrows">Show
-																circles &amp; arrows</label>
-</div>
-</div>
-<div class="col">
-<div class="form-check form-switch">
-<input class="form-check-input" id="chk_playAudio" role="switch" type="checkbox"/>
-<label class="form-check-label" for="chk_playAudio">Play
-																Sounds</label>
-</div>
-</div>
-<div class="col">
-<div class="form-check form-switch">
-<input class="form-check-input" id="chk_playSpeech" role="switch" type="checkbox"/>
-<label class="form-check-label" for="chk_playSpeech">Say
-																Moves</label>
-</div>
-</div>
-<!-- Force next columns to break to new line -->
-<div class="w-100"></div>
-<script>
-														const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-														const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-													</script>
-<div class="col">
-<div class="form-check form-switch">
-<a data-toggle="tooltip" href="#" title="Can't turn this on? You need to enable clipboard access in your browser and then refresh.">
-<input class="form-check-input" id="chk_clipboard" role="switch" type="checkbox"/></a>
-<label class="form-check-label" for="chk_clipboard">Auto
-																copy results to clipboard</label>
-</div>
-</div>
-<div class="w-100"></div>
-<div class="col">
-<div class="form-check form-switch">
-<input class="form-check-input" id="chk_csvheaders" role="switch" type="checkbox"/>
-<label class="form-check-label" for="chk_csvheaders">Add
-																headers to CSV file &amp; Clipboard</label>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="modal-footer">
-<div class="row col-12">
-<div class="col-auto me-auto">
-<button class="btn btn-secondary fs-5" id="btn_defaults" type="button">Reset</button>
-</div>
-<div class="col-auto">
-<button class="btn btn-primary fs-5" data-bs-dismiss="modal" id="btn_settingsClose" type="button">Close</button>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Results Modal -->
-<div class="container">
-<!-- Modal -->
-<div aria-labelledby="resmodal" class="modal fade" id="resmodal" role="dialog" tabindex="-1">
-<div class="modal-dialog modal-dialog-centered" role="document">
-<div class="modal-content align-items-center">
-<div class="modal-header">
-<h5 class="modal-title" id="resmodal-label">Set Complete</h5>
-<button aria-label="Close" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" id="resmodal_close" type="button"></button>
-</div>
-<div class="modal-body align-items-center">
-<div id="errors"></div>
-<div id="errorRate"></div>
-<div id="elapsedTime"></div>
-<div id="avgTime"></div>
-</div>
-<div class="modal-footer">
-<button class="btn btn-primary" id="copyToClipboard" type="button">Copy
-												results to clipboard</button>
-<button class="btn btn-primary" id="downloadToCSV" type="button">Download to
-												CSV</button>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Modal -->
-<!-- Pawn promotion screen -->
-<div aria-labelledby="pawnPromotionLabel" class="modal" data-bs-backdrop="static" data-bs-keyboard="false" id="pawnPromotion" tabindex="-1">
-<div class="modal-dialog">
-<div class="modal-content">
-<div class="modal-body">
-<div class="list-group list-group-horizontal">
-<button class="list-group-item list-group-item-secondary list-group-item-action flex-fill border-0" data-bs-dismiss="modal" type="button"><img class="promotion-piece-q promo-button" id="q"/></button>
-<button class="list-group-item list-group-item-secondary list-group-item-action flex-fill border-0" data-bs-dismiss="modal" type="button"><img class="promotion-piece-r promo-button" id="r"/></button>
-<button class="list-group-item list-group-item-secondary list-group-item-action flex-fill border-0" data-bs-dismiss="modal" type="button"><img class="promotion-piece-n promo-button" id="n"/></button>
-<button class="list-group-item list-group-item-secondary list-group-item-action flex-fill border-0" data-bs-dismiss="modal" type="button"><img class="promotion-piece-b promo-button" id="b"/></button>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="container">
-<!-- Library Scrollable modal -->
-<div aria-labelledby="librarymodal" class="modal" data-bs-backdrop="static" data-bs-keyboard="false" id="librarymodal" tabindex="-1">
-<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-<div class="modal-content">
-<div class="modal-header">
-<div class="modal-title fs-4" id="settings-label">Library</div>
-<button aria-label="Close" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" id="lichess_close" type="button"></button>
-</div>
-<div class="modal-body fs-5">
-<div class="accordion" id="data_library">
-<div class="accordion-item" id="lichess_studies_accordianItem">
-<h2 class="accordion-header" id="lichess_studies_header">
-<button aria-controls="lichess_studies_study" aria-expanded="false" class="accordion-button" data-bs-target="#lichess_studies_study" data-bs-toggle="collapse" id="lichess_studies_button" type="button">
-<div id="lichess_studies_div">
-																Lichess Studies<span id="lichess_study_owner"></span>
-</div>
-</button>
-</h2>
-<div class="accordion-collapse collapse show" data-bs-parent="#data_library" id="lichess_studies_study">
-<div class="accordion-body" id="lichess_studies_body">
-<div class="accordion" id="lichess_studies_list">
-<!-- Lichess Studies go here -->
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="modal-footer">
-<div class="row col-12">
-<div class="col-auto me-auto">
-<button class="btn btn-secondary fs-5" id="ĺoad_lichess_studies" type="button">Load Studies</button>
-<!--
-														<button type="button" class="btn btn-secondary fs-5"
-														id="btn_sort"><img id="btn_img_sort"
-															src="./src/components/themes/dark/sort-asc-white.png"
-															style="width: 30px; height: 30px;" /></button>
-													-->
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Error Modal -->
-<div aria-hidden="true" aria-labelledby="errorModalLabel" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="errorModal" tabindex="-1">
-<div class="modal-dialog">
-<div class="modal-content">
-<div class="modal-header">
-<h1 class="modal-title fs-5" id="errorModalLabel">Error</h1>
-<button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
-</div>
-<div class="modal-body" id="errorText" style="overflow-x: auto;">
-										...
-									</div>
-<div class="modal-footer">
-<button class="btn btn-primary" data-bs-dismiss="modal" type="button">Close</button>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Footer Section-->
-<div class="p-2 container d-none d-sm-block fs-5" style="margin-top: auto;">
-<div class="list-group">
-<a class="list-group-item list-group-item-action border-0" data-bs-target="#settings-dialog" data-bs-toggle="modal" id="btn_Settings">Settings ⛭</a>
-<a class="list-group-item list-group-item-action d-flex border-0" href="https://github.com/Arjuntamizh/Chess-Trainer" target="_blank">Github Page
-							<img class="img-fluid" id="img_logo2" src="./src/components/themes/light/github-mark-black.svg" style="width: 20px; height: 20px;margin-left: 10px;"/> </a>
-<div class="fs-6" id="versionnumber" style="text-align: right"></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<h2>Login</h2>
-<input id="email" placeholder="Email" type="email"/>
-<input id="password" placeholder="Password" type="password"/>
-<button onclick="login()">Login</button>
-<p id="error" style="color: red;"></p>
-<script src="login.js" type="module"></script>
-<!-- Login UI -->
-<input id="email" placeholder="Email" type="email"/><br/>
-<input id="password" placeholder="Password" type="password"/><br/>
-<button onclick="login()">Login</button>
-<!-- Firebase Auth Script -->
-<script src="./firebase-config.js" type="module"></script>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <!-- Header -->
+    <header class="d-flex justify-content-between align-items-center bg-dark text-white p-2">
+        <h3 class="ms-2">
+            IQ4U Chess
+            <span class="connection-status disconnected" id="connectionStatus"></span>
+        </h3>
+        <div class="me-2 audio-controls">
+            <button class="btn btn-success btn-sm me-2" id="joinCall">Join Call</button>
+            <button class="btn btn-danger btn-sm me-2" id="leaveCall" style="display: none;">Leave Call</button>
+            <button class="btn btn-warning btn-sm me-2" id="muteToggle" style="display: none;">Mute</button>
+            <span id="userEmail" class="me-3"></span>
+            <button class="btn btn-outline-light btn-sm" id="logoutBtn">Logout</button>
+        </div>
+    </header>
 
-  const firebaseConfig = {
-  apiKey: "AIzaSyAI1oPe7OL78JQtFjscD5y_Wdp5NqoB-J0",
-  authDomain: "iq4u-chess-b2835.firebaseapp.com",
-  databaseURL: "https://iq4u-chess-b2835-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "iq4u-chess-b2835",
-  storageBucket: "iq4u-chess-b2835.firebasestorage.app",
-  messagingSenderId: "1029237519163",
-  appId: "1:1029237519163:web:2b060008c0f11bfe5a3d1e"
-};
-    apiKey: "AIzaSyAI1oPe7OL78JQtFjscD5y_Wdp5NqoB-J0",
-    authDomain: "iq4u-chess-b2835.firebaseapp.com",
-    databaseURL: "https://iq4u-chess-b2835-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "iq4u-chess-b2835",
-    storageBucket: "iq4u-chess-b2835.appspot.com",
-    messagingSenderId: "1029237519163",
-    appId: "1:1029237519163:web:2b060008c0f11bfe5a3d1e"
-  };
+    <!-- Layout for Desktops and Tablets -->
+    <div class="container-fluid p-0" id="application">
+        <div class="row mx-0" id="main_content">
+            <!-- Content Panel-->
+            <div class="col-12 order-1 col-lg-3 order-lg-1">
+                <div class="d-block d-sm-none d-lg-block" id="annotation_col">
+                    <div class="container p-1 fs-6" id="comment_panel" style="overflow-y: auto; max-height: 90vh;">
+                        <div class="fs-3" id="comment_event_name" style="padding-top: 10px;"></div>
+                        <div class="col-12" id="comment_annotation"></div>
+                        
+                        <!-- PGN Games List -->
+                        <div id="gamesPanel" style="display: none;">
+                            <h5>PGN Games</h5>
+                            <div id="gamesList" style="max-height: 300px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Board -->
+            <div class="col-sm-7 order-sm-2 col-lg-6 order-lg-2 align-items-center g-0" id="playingarea">
+                <div class="container-fluid g-0 prevent-select">
+                    <!-- Title -->
+                    <div class="p-3 g-0 d-sm-none text-bg-primary" style="padding-top: 2px!important; padding-bottom: 2px!important;">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="h2 col-8" id="title_sidebar" style="margin-bottom: 0;">IQ4U Chess</div>
+                            <div class="col-2">
+                                <button aria-controls="offcanvasResponsive" class="btn btn-primary d-lg-none text-end fs-2" data-bs-target="#offcanvasResponsive" data-bs-toggle="offcanvas" type="button">☰</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="align-self-center" style="padding-top: 10px; padding-bottom: 10px;">
+                        <!-- The boards -->
+                        <div class="chessboard" id="myBoard"></div>
+                        <div class="chessboard" id="blankBoard"></div>
+                    </div>
+                    <!-- The move indicator -->
+                    <div class="p-0 fs-5" id="moveturn" style="text-align: center;"></div>
+                </div>
+            </div>
+            
+            <!-- Menu Panel-->
+            <div class="col-sm-5 order-sm-3 col-lg-3 order-lg-3 prevent-select" id="status_area" style="display: flex;flex-direction: column; overflow-y: auto; max-height: 95vh;">
+                <div class="container">
+                    <div id="mainAppContainer">
+                        <!-- Title -->
+                        <div class="p-3 d-none d-sm-block h1 fs-2" id="title_topbar">IQ4U Chess</div>
+                        
+                        <!-- Options -->
+                        <div aria-labelledby="offcanvasResponsiveLabel" class="offcanvas-sm offcanvas-end p-0" id="offcanvasResponsive" style="width: auto; max-width: none;" tabindex="-1">
+                            <div class="offcanvas-header">
+                                <h5 class="offcanvas-title" id="offcanvasResponsiveLabel"></h5>
+                                <button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasResponsive" type="button"></button>
+                            </div>
+                            <div class="offcanvas-body">
+                                <div class="row fs-4">
+                                    <div class="container align-items-center col-12 p-2" style="text-align:center">
+                                        <button class="btn btn-primary fs-5" id="openPGN_button" style="display: inline-block" type="button">Open PGN File</button>
+                                        <input accept=".pgn" id="openPGN" style="display: none" type="file"/>
+                                        <button class="btn btn-primary fs-5" id="btn_reset" style="display: inline-block">Reset</button>
+                                    </div>
+                                    <div class="d-flex justify-content-center">
+                                        <button class="btn btn-primary fs-5" id="btn_library" style="display: inline-block">Library</button>
+                                    </div>
+                                    <div class="container p-1 col-12 fs-5">
+                                        <hr class="m-2"/>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" id="randomizeSet" role="switch" type="checkbox"/>
+                                            <label class="form-check-label" for="randomizeSet">Randomize</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" id="playbothsides" role="switch" type="checkbox"/>
+                                            <label class="form-check-label" for="playbothsides">Play both sides</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" id="playoppositeside" role="switch" type="checkbox"/>
+                                            <label class="form-check-label" for="playoppositeside">Play opposite side</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" id="flipped" role="switch" type="checkbox"/>
+                                            <label class="form-check-label" for="flipped">Flipped</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" id="manualadvance" role="switch" type="checkbox"/>
+                                            <label class="form-check-label" for="manualadvance">Next button</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Status information-->
+                        <div class="container p-1 align-items-center fs-5" style="text-align: center;">
+                            <div class="d-none d-md-block">
+                                <hr class="m-2"/>
+                            </div>
+                            <div>
+                                Game <span class="puzzlenumbers" id="gameNumber">1</span> of <span class="puzzlenumbers" id="gameNumberTotal">1</span>
+                            </div>
+                            <div class="row">
+                                <div aria-label="Progress Bar" class="progress col-11 p-0" role="progressbar" style="height: 30px">
+                                    <div class="progress-bar fs-5" id="progressbar" style="width: 0%">0%</div>
+                                </div>
+                                <div class="col-1 p-0">
+                                    <a id="analysis_link" target="_blank" title="Analyze this position">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="container align-items-center p-3" style="text-align:center">
+                                <button class="btn btn-primary fs-5" id="btn_starttest">Start</button>
+                                <button class="btn btn-primary fs-5" id="btn_hint" style="display: none">Hint</button>
+                                <button class="btn btn-primary fs-5" id="btn_pause" style="display: none">Pause</button>
+                                <button class="btn btn-success fs-5" id="btn_next" style="display: none">Next</button>
+                                <button class="btn btn-primary fs-5" id="btn_restart" style="display: none">Restart</button>
+                                <button class="btn btn-primary fs-5" data-bs-target="#resmodal" data-bs-toggle="modal" id="btn_showresults" style="display: none">Show Results</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Settings Button -->
+                        <div class="container text-center">
+                            <button class="btn btn-outline-secondary" data-bs-target="#settings-dialog" data-bs-toggle="modal">Settings ⚙️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth();
-  const db = getFirestore();
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settings-dialog" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title fs-4">Settings</div>
+                    <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+                </div>
+                <div class="modal-body fs-5">
+                    <div class="container text-center">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="Light-Color">Light Squares</label>
+                                    <div class="col">
+                                        <input class="form-control colorpicker fs-6" id="Light-Color" maxlength="7" size="7" type="color" value="#f0d9b5"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="Dark-Color">Dark Squares</label>
+                                    <div class="col">
+                                        <input class="form-control colorpicker fs-6" id="Dark-Color" maxlength="7" size="7" type="color" value="#b58863"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr/>
+                    </div>
+                    <div class="container text-center">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-check form-switch">
+                                    <label class="form-check-label" for="chk_darkmode">Dark Mode</label>
+                                    <input class="form-check-input" id="chk_darkmode" role="switch" type="checkbox"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" id="chk_playAudio" role="switch" type="checkbox"/>
+                                    <label class="form-check-label" for="chk_playAudio">Play Sounds</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+            </div>
+        </div>
+    </div>
 
-  document.getElementById('loginBtn').addEventListener('click', async () => {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    <!-- Header -->
+    <header class="d-flex justify-content-between align-items-center bg-dark text-white p-2">
+        <h3 class="ms-2">
+            IQ4U Chess
+            <span class="connection-status disconnected" id="connectionStatus"></span>
+        </h3>
+        <div class="me-2 audio-controls">
+            <button class="btn btn-success btn-sm me-2" id="joinCall">Join Call</button>
+            <button class="btn btn-danger btn-sm me-2" id="leaveCall" style="display: none;">Leave Call</button>
+            <button class="btn btn-warning btn-sm me-2" id="muteToggle" style="display: none;">Mute</button>
+            <span id="userEmail" class="me-3"></span>
+            <button class="btn btn-outline-light btn-sm" id="logoutBtn">Logout</button>
+        </div>
+    </header>
 
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const uid = userCredential.user.uid;
+    <!-- Layout for Desktops and Tablets -->
+    <div class="container-fluid p-0" id="application">
+        <div class="row mx-0" id="main_content">
+            <!-- Content Panel-->
+            <div class="col-12 order-1 col-lg-3 order-lg-1">
+                <div class="d-block d-sm-none d-lg-block" id="annotation_col">
+                    <div class="container p-1 fs-6" id="comment_panel" style="overflow-y: auto; max-height: 90vh;">
+                        <div class="fs-3" id="comment_event_name" style="padding-top: 10px;"></div>
+                        <div class="col-12" id="comment_annotation"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Board -->
+            <div class="col-sm-7 order-sm-2 col-lg-6 order-lg-2 align-items-center g-0" id="playingarea">
+                <div class="container-fluid g-0 prevent-select">
+                    <!-- Title -->
+                    <div class="p-3 g-0 d-sm-none text-bg-primary" style="padding-top: 2px!important; padding-bottom: 2px!important;">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="h2 col-8" id="title_sidebar" style="margin-bottom: 0;">IQ4U Chess</div>
+                            <div class="col-2">
+                                <button aria-controls="offcanvasResponsive" class="btn btn-primary d-lg-none text-end fs-2" data-bs-target="#offcanvasResponsive" data-bs-toggle="offcanvas" type="button">☰</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="align-self-center" style="padding-top: 10px; padding-bottom: 10px;">
+                        <!-- The boards -->
+                        <div class="chessboard" id="myBoard"></div>
+                        <div class="chessboard" id="blankBoard"></div>
+                    </div>
+                    <!-- The move indicator -->
+                    <div class="p-0 fs-5" id="moveturn" style="text-align: center;"></div>
+                </div>
+            </div>
+            
+            <!-- Menu Panel-->
+            <div class="col-sm-5 order-sm-3 col-lg-3 order-lg-3 prevent-select" id="status_area" style="display: flex;flex-direction: column; overflow-y: auto; max-height: 95vh;">
+                <div class="container">
+                    <div id="mainAppContainer">
+                        <!-- Title -->
+                        <div class="p-3 d-none d-sm-block h1 fs-2" id="title_topbar">IQ4U Chess</div>
+                        
+                        <!-- Options -->
+                        <div aria-labelledby="offcanvasResponsiveLabel" class="offcanvas-sm offcanvas-end p-0" id="offcanvasResponsive" style="width: auto; max-width: none;" tabindex="-1">
+                            <div class="offcanvas-header">
+                                <h5 class="offcanvas-title" id="offcanvasResponsiveLabel"></h5>
+                                <button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasResponsive" type="button"></button>
+                            </div>
+                            <div class="offcanvas-body">
+                                <div class="row fs-4">
+                                    <div class="container align-items-center col-12 p-2" style="text-align:center">
+                                        <button class="btn btn-primary fs-5" id="openPGN_button" style="display: inline-block" type="button">Open PGN File</button>
+                                        <input accept=".pgn" id="openPGN" style="display: none" type="file"/>
+                                        <button class="btn btn-primary fs-5" id="btn_reset" style="display: inline-block">Reset</button>
+                                    </div>
+                                    <div class="d-flex justify-content-center">
+                                        <button class="btn btn-primary fs-5" id="btn_library" style="display: inline-block">Library</button>
+                                    </div>
+                                    <div class="container p-1 col-12 fs-5">
+                                        <hr class="m-2"/>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" id="randomizeSet" role="switch" type="checkbox"/>
+                                            <label class="form-check-label" for="randomizeSet">Randomize</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" id="playbothsides" role="switch" type="checkbox"/>
+                                            <label class="form-check-label" for="playbothsides">Play both sides</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" id="playoppositeside" role="switch" type="checkbox"/>
+                                            <label class="form-check-label" for="playoppositeside">Play opposite side</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" id="flipped" role="switch" type="checkbox"/>
+                                            <label class="form-check-label" for="flipped">Flipped</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" id="manualadvance" role="switch" type="checkbox"/>
+                                            <label class="form-check-label" for="manualadvance">Next button</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Status information-->
+                        <div class="container p-1 align-items-center fs-5" style="text-align: center;">
+                            <div class="d-none d-md-block">
+                                <hr class="m-2"/>
+                            </div>
+                            <div>
+                                Game <span class="puzzlenumbers" id="gameNumber">1</span> of <span class="puzzlenumbers" id="gameNumberTotal">1</span>
+                            </div>
+                            <div class="row">
+                                <div aria-label="Progress Bar" class="progress col-11 p-0" role="progressbar" style="height: 30px">
+                                    <div class="progress-bar fs-5" id="progressbar" style="width: 0%">0%</div>
+                                </div>
+                                <div class="col-1 p-0">
+                                    <a id="analysis_link" target="_blank" title="Analyze this position">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="container align-items-center p-3" style="text-align:center">
+                                <button class="btn btn-primary fs-5" id="btn_starttest">Start</button>
+                                <button class="btn btn-primary fs-5" id="btn_hint" style="display: none">Hint</button>
+                                <button class="btn btn-primary fs-5" id="btn_pause" style="display: none">Pause</button>
+                                <button class="btn btn-success fs-5" id="btn_next" style="display: none">Next</button>
+                                <button class="btn btn-primary fs-5" id="btn_restart" style="display: none">Restart</button>
+                                <button class="btn btn-primary fs-5" data-bs-target="#resmodal" data-bs-toggle="modal" id="btn_showresults" style="display: none">Show Results</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Settings Button -->
+                        <div class="container text-center">
+                            <button class="btn btn-outline-secondary" data-bs-target="#settings-dialog" data-bs-toggle="modal">Settings ⚙️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-      const userDoc = await getDoc(doc(db, "users", uid));
-      const role = userDoc.data().role;
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settings-dialog" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title fs-4">Settings</div>
+                    <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+                </div>
+                <div class="modal-body fs-5">
+                    <div class="container text-center">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="Light-Color">Light Squares</label>
+                                    <div class="col">
+                                        <input class="form-control colorpicker fs-6" id="Light-Color" maxlength="7" size="7" type="text" value="#f0d9b5"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="Dark-Color">Dark Squares</label>
+                                    <div class="col">
+                                        <input class="form-control colorpicker fs-6" id="Dark-Color" maxlength="7" size="7" type="text" value="#b58863"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr/>
+                    </div>
+                    
+                    <div class="container text-center">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="piece-select">Piece Style</label>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-select" id="piece-select" name="pieces">
+                                    <option value="cburnett">Classic</option>
+                                    <option value="merida">Merida</option>
+                                    <option value="alpha">Alpha</option>
+                                </select>
+                            </div>
+                        </div>
+                        <hr/>
+                    </div>
+                    
+                    <div class="container text-center">
+                        <div class="row">
+                            <label class="form-label" for="pieceSpeed">Piece Movement Speed</label>
+                        </div>
+                        <div class="row">
+                            <div class="col-2">
+                                <label>Slow</label>
+                            </div>
+                            <div class="col-8">
+                                <input class="form-range" id="pieceSpeed" max="500" min="0" step="50" type="range" value="200"/>
+                            </div>
+                            <div class="col-2">
+                                <label>Fast</label>
+                            </div>
+                        </div>
+                        <hr/>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="container">
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" id="chk_darkmode" role="switch" type="checkbox"/>
+                                    <label class="form-check-label" for="chk_darkmode">Dark Mode</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" id="chk_legalMoves" role="switch" type="checkbox" checked/>
+                                    <label class="form-check-label" for="chk_legalMoves">Show legal moves</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" id="chk_circlesarrows" role="switch" type="checkbox" checked/>
+                                    <label class="form-check-label" for="chk_circlesarrows">Show circles & arrows</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" id="chk_playAudio" role="switch" type="checkbox" checked/>
+                                    <label class="form-check-label" for="chk_playAudio">Play Sounds</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-      if (role === "admin") {
-        window.location.href = "admin.html";
-      } else if (role === "student") {
-        window.location.href = "student.html";
-      } else {
-        alert("Unknown role. Contact admin.");
-      }
-    } catch (error) {
-      alert("Login failed: " + error.message);
-    }
-  });
-</script>
-<script type="module">
-  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    <!-- Results Modal -->
+    <div class="modal fade" id="resmodal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Game Results</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="resultsContent">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  const auth = getAuth();
-  document.getElementById("logoutBtn").onclick = () => {
-    signOut(auth).then(() => window.location.href = "index.html");
-  };
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  let localStream, isMuted = false;
-  document.getElementById("joinCall").onclick = async () => {
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    alert("Voice joined (demo mode)");
-  };
-  document.getElementById("leaveCall").onclick = () => {
-    if (localStream) localStream.getTracks().forEach(t => t.stop());
-    alert("Left voice call");
-  };
-  document.getElementById("muteToggle").onclick = () => {
-    if (!localStream) return;
-    isMuted = !isMuted;
-    localStream.getAudioTracks().forEach(track => track.enabled = !isMuted);
-    document.getElementById("muteToggle").innerText = isMuted ? "Unmute" : "Mute";
-  };
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/chessground@9.2.1/dist/chessground.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chess.js@1.0.0-beta.6/dist/chess.min.js"></script>
+    
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        import { getDatabase, ref, push, set, onValue, off, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js';
 
-<script>
-  document.getElementById("pgnSelector").addEventListener("change", function () {
-    const selectedFile = this.value;
-    fetch(`./pgns/${selectedFile}`)
-      .then(res => res.text())
-      .then(pgnText => {
-        const pgnInput = document.createElement("input");
-        pgnInput.type = "file";
-        const file = new File([pgnText], selectedFile, { type: "text/plain" });
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        pgnInput.files = dataTransfer.files;
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAI1oPe7OL78JQtFjscD5y_Wdp5NqoB-J0",
+            authDomain: "iq4u-chess-b2835.firebaseapp.com",
+            databaseURL: "https://iq4u-chess-b2835-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "iq4u-chess-b2835",
+            storageBucket: "iq4u-chess-b2835.firebasestorage.app",
+            messagingSenderId: "1029237519163",
+            appId: "1:1029237519163:web:2b060008c0f11bfe5a3d1e"
+        };
 
-        const openPGN = document.getElementById("openPGN");
-        openPGN.files = pgnInput.files;
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
 
-        const event = new Event("change", { bubbles: true });
-        openPGN.dispatchEvent(event);
-      })
-      .catch(err => alert("Failed to load PGN: " + err));
-  });
-</script>
+        // Global variables
+        let currentUser = null;
+        let gameRoom = null;
+        let chess = null;
+        let chessground = null;
+        let currentGameId = null;
+        let isHost = false;
+        let localStream = null;
+        let peerConnection = null;
+        let pgnGames = [];
+        let currentGameIndex = 0;
+        let gameSettings = {
+            randomize: false,
+            playBothSides: false,
+            playOppositeSide: false,
+            flipped: false,
+            manualAdvance: false,
+            showLegalMoves: true,
+            showCirclesArrows: true,
+            playAudio: true,
+            darkMode: false,
+            lightSquareColor: '#f0d9b5',
+            darkSquareColor: '#b58863',
+            pieceStyle: 'cburnett',
+            pieceSpeed: 200
+        };
 
+        // WebRTC configuration
+        const rtcConfiguration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
 
-<script>
-  const selector = document.createElement("select");
-  selector.id = "pgnSelector";
-  selector.className = "form-select fs-5 mt-2";
-  selector.innerHTML = '<option disabled selected>Select PGN</option>';
-  document.getElementById("openPGN_button").insertAdjacentElement("afterend", selector);
+        // Initialize Chess.js and Chessground
+        function initializeChess() {
+            chess = new Chess();
+            
+            const config = {
+                fen: chess.fen(),
+                orientation: gameSettings.flipped ? 'black' : 'white',
+                turnColor: chess.turn() === 'w' ? 'white' : 'black',
+                check: chess.inCheck(),
+                movable: {
+                    free: false,
+                    dests: toDests(chess),
+                    showDests: gameSettings.showLegalMoves
+                },
+                events: {
+                    move: onMove,
+                    select: onSelect
+                },
+                animation: {
+                    duration: gameSettings.pieceSpeed
+                },
+                drawable: {
+                    enabled: gameSettings.showCirclesArrows,
+                    visible: true
+                }
+            };
 
-  fetch("https://api.github.com/repos/Arjuntamizh/Chess-Trainer/contents/pgns")
-    .then(res => res.json())
-    .then(files => {
-      files
-        .filter(file => file.name.endsWith(".pgn"))
-        .forEach(file => {
-          const opt = document.createElement("option");
-          opt.value = file.download_url;
-          opt.textContent = file.name.replace(".pgn", "");
-          selector.appendChild(opt);
+            chessground = Chessground(document.getElementById('myBoard'), config);
+            updateBoardColors();
+        }
+
+        // Convert chess.js moves to chessground dests format
+        function toDests(chess) {
+            const dests = new Map();
+            const squares = ['a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8',
+                           'a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7',
+                           'a6', 'b6', 'c6', 'd6', 'e6', 'f6', 'g6', 'h6',
+                           'a5', 'b5', 'c5', 'd5', 'e5', 'f5', 'g5', 'h5',
+                           'a4', 'b4', 'c4', 'd4', 'e4', 'f4', 'g4', 'h4',
+                           'a3', 'b3', 'c3', 'd3', 'e3', 'f3', 'g3', 'h3',
+                           'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2',
+                           'a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1'];
+            
+            squares.forEach(square => {
+                const moves = chess.moves({ square, verbose: true });
+                if (moves.length) {
+                    dests.set(square, moves.map(move => move.to));
+                }
+            });
+            return dests;
+        }
+
+        // Handle chess move
+        function onMove(orig, dest) {
+            const move = chess.move({ from: orig, to: dest, promotion: 'q' });
+            if (move) {
+                updateBoard();
+                syncGameState();
+                if (gameSettings.playAudio) {
+                    playMoveSound();
+                }
+            } else {
+                // Invalid move, reset board
+                chessground.set({ fen: chess.fen() });
+            }
+        }
+
+        function onSelect(square) {
+            if (gameSettings.showLegalMoves) {
+                const moves = chess.moves({ square, verbose: true });
+                const dests = new Map();
+                if (moves.length) {
+                    dests.set(square, moves.map(move => move.to));
+                }
+                chessground.set({ movable: { dests } });
+            }
+        }
+
+        // Update board state
+        function updateBoard() {
+            chessground.set({
+                fen: chess.fen(),
+                turnColor: chess.turn() === 'w' ? 'white' : 'black',
+                check: chess.inCheck(),
+                movable: {
+                    dests: toDests(chess),
+                    showDests: gameSettings.showLegalMoves
+                }
+            });
+            
+            updateMoveIndicator();
+            updateGameStatus();
+        }
+
+        // Update move indicator
+        function updateMoveIndicator() {
+            const moveElement = document.getElementById('moveturn');
+            const turn = chess.turn() === 'w' ? 'White' : 'Black';
+            const moveNumber = Math.ceil(chess.history().length / 2);
+            moveElement.textContent = `Move ${moveNumber}: ${turn} to play`;
+            
+            if (chess.isGameOver()) {
+                if (chess.isCheckmate()) {
+                    moveElement.textContent = `Checkmate! ${chess.turn() === 'w' ? 'Black' : 'White'} wins!`;
+                } else if (chess.isStalemate()) {
+                    moveElement.textContent = 'Stalemate! Draw!';
+                } else if (chess.isDraw()) {
+                    moveElement.textContent = 'Draw!';
+                }
+            }
+        }
+
+        // Update game status
+        function updateGameStatus() {
+            const gameNumber = document.getElementById('gameNumber');
+            const gameTotal = document.getElementById('gameNumberTotal');
+            const progressBar = document.getElementById('progressbar');
+            
+            gameNumber.textContent = currentGameIndex + 1;
+            gameTotal.textContent = pgnGames.length || 1;
+            
+            const progress = pgnGames.length > 0 ? ((currentGameIndex + 1) / pgnGames.length * 100) : 0;
+            progressBar.style.width = `${progress}%`;
+            progressBar.textContent = `${Math.round(progress)}%`;
+        }
+
+        // Play sound effect
+        function playMoveSound() {
+            const audio = new Audio('data:audio/wav;base64,UklGRvIBAABXQVZFZm10IBAAAAABAAEASD0AAIhOAQACABAAZGF0YUgBAAC4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4');
+            audio.volume = 0.3;
+            audio.play().catch(() => {});
+        }
+
+        // Update board colors
+        function updateBoardColors() {
+            document.documentElement.style.setProperty('--light-square-color', gameSettings.lightSquareColor);
+            document.documentElement.style.setProperty('--dark-square-color', gameSettings.darkSquareColor);
+        }
+
+        // Firebase Authentication
+        function showLoginModal() {
+            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+        }
+
+        function hideLoginModal() {
+            const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+            if (loginModal) {
+                loginModal.hide();
+            }
+        }
+
+        // Handle authentication state changes
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('userEmail').textContent = user.email;
+                hideLoginModal();
+                updateConnectionStatus('connected');
+                initializeChess();
+                loadSettings();
+            } else {
+                currentUser = null;
+                showLoginModal();
+                updateConnectionStatus('disconnected');
+            }
         });
-    });
 
-  selector.addEventListener("change", function () {
-    fetch(this.value)
-      .then(res => res.text())
-      .then(pgnText => {
-        const pgnInput = document.createElement("input");
-        pgnInput.type = "file";
-        const file = new File([pgnText], "selected.pgn", { type: "text/plain" });
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        pgnInput.files = dt.files;
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                errorDiv.style.display = 'none';
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+            }
+        });
 
-        const openPGN = document.getElementById("openPGN");
-        openPGN.files = pgnInput.files;
+        // Register button handler
+        document.getElementById('registerBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if (!email || !password) {
+                errorDiv.textContent = 'Please enter email and password';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                errorDiv.style.display = 'none';
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+            }
+        });
 
-        const event = new Event("change", { bubbles: true });
-        openPGN.dispatchEvent(event);
-      });
-  });
-</script>
+        // Logout handler
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                if (localStream) {
+                    localStream.getTracks().forEach(track => track.stop());
+                    localStream = null;
+                }
+                if (peerConnection) {
+                    peerConnection.close();
+                    peerConnection = null;
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialize board first
-  window.chessboard = Chessboard('myBoard', {
-    pieceTheme: './src/lib/chessboardjs/img/chesspieces/wikipedia/{piece}.png',
-    position: 'start',
-    draggable: true
-  });
+        // Demo mode button
+        document.getElementById('demoBtn').addEventListener('click', () => {
+            // Skip authentication and start in demo mode
+            currentUser = { email: 'demo@iq4u.chess', uid: 'demo' };
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('application').style.display = 'block';
+            document.querySelector('header').style.display = 'flex';
+            document.getElementById('userEmail').textContent = 'Demo Mode';
+            updateConnectionStatus('connected');
+            initializeChess();
+            loadSettings();
+            setupEventHandlers();
+        });
 
-  // Enhanced PGN loader
-  document.getElementById("pgnSelector").addEventListener("change", async function() {
-    try {
-      const response = await fetch(`./pgns/${this.value}`);
-      if (!response.ok) throw new Error("File not found");
-      
-      const pgnText = await response.text();
-      window.chessboard.load(pgnText);
-      
-      // Debug output
-      console.log("PGN loaded successfully");
-      console.log("Current position:", window.chessboard.position());
-      
-      // Force redraw if pieces don't appear
-      setTimeout(() => {
-        const current = window.chessboard.position();
-        window.chessboard.position(current);
-      }, 50);
-      
-    } catch (error) {
-      console.error("PGN Error:", error);
-      alert(`Failed to load PGN:\n${error.message}`);
-    }
-  });
-});
-</script>
+        // Update connection status indicator
+        function updateConnectionStatus(status) {
+            const indicator = document.getElementById('connectionStatus');
+            indicator.className = `connection-status ${status}`;
+        }
+
+        // Firebase game synchronization
+        function syncGameState() {
+            if (!currentUser || !currentGameId) return;
+            
+            const gameRef = ref(database, `games/${currentGameId}`);
+            set(gameRef, {
+                fen: chess.fen(),
+                history: chess.history(),
+                timestamp: serverTimestamp(),
+                lastMove: currentUser.uid
+            });
+        }
+
+        function listenToGameUpdates(gameId) {
+            const gameRef = ref(database, `games/${gameId}`);
+            onValue(gameRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.lastMove !== currentUser.uid) {
+                    chess.load(data.fen);
+                    updateBoard();
+                }
+            });
+        }
+
+        // PGN handling
+        document.getElementById('openPGN_button').addEventListener('click', () => {
+            document.getElementById('openPGN').click();
+        });
+
+        document.getElementById('openPGN').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        parsePGN(e.target.result);
+                    } catch (error) {
+                        alert('Error parsing PGN file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function parsePGN(pgnText) {
+            // Simple PGN parser
+            const games = pgnText.split(/\n\s*\n/).filter(game => game.trim());
+            pgnGames = [];
+            
+            games.forEach(gameText => {
+                const lines = gameText.split('\n');
+                let headers = {};
+                let moves = '';
+                
+                lines.forEach(line => {
+                    if (line.startsWith('[') && line.endsWith(']')) {
+                        const match = line.match(/\[(\w+)\s+"([^"]+)"\]/);
+                        if (match) {
+                            headers[match[1]] = match[2];
+                        }
+                    } else if (!line.startsWith('[') && line.trim()) {
+                        moves += line + ' ';
+                    }
+                });
+                
+                if (moves.trim()) {
+                    pgnGames.push({ headers, moves: moves.trim() });
+                }
+            });
+            
+            if (pgnGames.length > 0) {
+                currentGameIndex = 0;
+                loadGame(0);
+                document.getElementById('btn_starttest').disabled = false;
+            }
+        }
+
+        function loadGame(index) {
+            if (index >= 0 && index < pgnGames.length) {
+                currentGameIndex = index;
+                const game = pgnGames[index];
+                
+                // Reset chess and load game
+                chess = new Chess();
+                
+                // Parse moves
+                const moveRegex = /\d+\.\.?\s*([NBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:=?[NBRQ])?[\+#]?)/g;
+                const moves = game.moves.match(moveRegex) || [];
+                
+                moves.forEach(moveText => {
+                    try {
+                        chess.move(moveText.replace(/^\d+\.\.?\s*/, ''));
+                    } catch (e) {
+                        console.warn('Invalid move:', moveText);
+                    }
+                });
+                
+                // Update UI
+                updateBoard();
+                updateGameStatus();
+                
+                // Update annotation panel
+                const eventName = document.getElementById('comment_event_name');
+                const annotation = document.getElementById('comment_annotation');
+                eventName.textContent = game.headers.Event || 'Chess Game';
+                annotation.innerHTML = `
+                    <p><strong>White:</strong> ${game.headers.White || 'Unknown'}</p>
+                    <p><strong>Black:</strong> ${game.headers.Black || 'Unknown'}</p>
+                    <p><strong>Date:</strong> ${game.headers.Date || 'Unknown'}</p>
+                    <p><strong>Result:</strong> ${game.headers.Result || '*'}</p>
+                `;
+            }
+        }
+
+        // Game controls
+        document.getElementById('btn_reset').addEventListener('click', () => {
+            chess = new Chess();
+            updateBoard();
+            currentGameId = Date.now().toString();
+            syncGameState();
+        });
+
+        document.getElementById('btn_starttest').addEventListener('click', () => {
+            if (pgnGames.length > 0) {
+                chess = new Chess();
+                updateBoard();
+            }
+            document.getElementById('btn_starttest').style.display = 'none';
+            document.getElementById('btn_pause').style.display = 'inline-block';
+            document.getElementById('btn_next').style.display = 'inline-block';
+        });
+
+        document.getElementById('btn_next').addEventListener('click', () => {
+            if (pgnGames.length > 0) {
+                currentGameIndex = (currentGameIndex + 1) % pgnGames.length;
+                loadGame(currentGameIndex);
+            }
+        });
+
+        document.getElementById('btn_restart').addEventListener('click', () => {
+            loadGame(currentGameIndex);
+        });
+
+        // Settings handlers - removed to avoid duplication with later implementation
+
+        // Removed duplicate event listeners - handled in setupEventHandlers() function
+
+        // WebRTC Audio Chat
+        async function initializeAudio() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                return true;
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+                return false;
+            }
+        }
+
+        async function createPeerConnection() {
+            peerConnection = new RTCPeerConnection(rtcConfiguration);
+            
+            if (localStream) {
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
+                });
+            }
+            
+            peerConnection.ontrack = (event) => {
+                const remoteAudio = new Audio();
+                remoteAudio.srcObject = event.streams[0];
+                remoteAudio.play();
+            };
+            
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate && currentGameId) {
+                    const candidateRef = ref(database, `calls/${currentGameId}/candidates`);
+                    push(candidateRef, {
+                        candidate: event.candidate,
+                        from: currentUser.uid,
+                        timestamp: serverTimestamp()
+                    });
+                }
+            };
+        }
+
+        // Audio controls
+        document.getElementById('joinCall').addEventListener('click', async () => {
+            if (!currentUser) {
+                alert('Please login first');
+                return;
+            }
+            
+            const success = await initializeAudio();
+            if (!success) {
+                alert('Could not access microphone');
+                return;
+            }
+            
+            currentGameId = prompt('Enter room ID:') || Date.now().toString();
+            await createPeerConnection();
+            
+            // Show audio controls
+            document.getElementById('joinCall').style.display = 'none';
+            document.getElementById('leaveCall').style.display = 'inline-block';
+            document.getElementById('muteToggle').style.display = 'inline-block';
+            
+            // Listen for game updates
+            listenToGameUpdates(currentGameId);
+            
+            // Set up call signaling
+            const callRef = ref(database, `calls/${currentGameId}`);
+            onValue(callRef, async (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.offer && data.from !== currentUser.uid) {
+                    await peerConnection.setRemoteDescription(data.offer);
+                    const answer = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answer);
+                    
+                    set(ref(database, `calls/${currentGameId}/answer`), {
+                        answer: answer,
+                        from: currentUser.uid,
+                        timestamp: serverTimestamp()
+                    });
+                }
+                
+                if (data && data.answer && data.answer.from !== currentUser.uid) {
+                    await peerConnection.setRemoteDescription(data.answer.answer);
+                }
+            });
+            
+            // Create offer if host
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            set(callRef, {
+                offer: offer,
+                from: currentUser.uid,
+                timestamp: serverTimestamp()
+            });
+        });
+
+        document.getElementById('leaveCall').addEventListener('click', () => {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            
+            if (currentGameId) {
+                const callRef = ref(database, `calls/${currentGameId}`);
+                off(callRef);
+            }
+            
+            // Hide audio controls
+            document.getElementById('joinCall').style.display = 'inline-block';
+            document.getElementById('leaveCall').style.display = 'none';
+            document.getElementById('muteToggle').style.display = 'none';
+        });
+
+        document.getElementById('muteToggle').addEventListener('click', (e) => {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    e.target.textContent = audioTrack.enabled ? 'Mute' : 'Unmute';
+                    e.target.className = audioTrack.enabled ? 'btn btn-warning btn-sm me-2' : 'btn btn-success btn-sm me-2';
+                }
+            }
+        });
+
+        // Setup additional event handlers
+        function setupEventHandlers() {
+            // Game control buttons
+            document.getElementById('btn_starttest').addEventListener('click', startGame);
+            document.getElementById('btn_next').addEventListener('click', nextMove);
+            document.getElementById('btn_restart').addEventListener('click', restartGame);
+            document.getElementById('btn_reset').addEventListener('click', resetGame);
+            document.getElementById('btn_library').addEventListener('click', toggleLibrary);
+            
+            // Settings handlers
+            document.getElementById('Light-Color').addEventListener('change', updateBoardColors);
+            document.getElementById('Dark-Color').addEventListener('change', updateBoardColors);
+            document.getElementById('chk_darkmode').addEventListener('change', toggleDarkMode);
+            document.getElementById('flipped').addEventListener('change', toggleBoardFlip);
+            
+            // Game options
+            document.getElementById('randomizeSet').addEventListener('change', (e) => {
+                gameSettings.randomize = e.target.checked;
+                saveSettings();
+            });
+            document.getElementById('playbothsides').addEventListener('change', (e) => {
+                gameSettings.playBothSides = e.target.checked;
+                saveSettings();
+            });
+        }
+
+        // Game control functions
+        function startGame() {
+            document.getElementById('btn_starttest').style.display = 'none';
+            document.getElementById('btn_next').style.display = 'inline-block';
+            document.getElementById('btn_restart').style.display = 'inline-block';
+        }
+
+        function nextMove() {
+            // Implementation for next move in PGN playback
+            if (pgnGames.length > 0 && currentGameIndex < pgnGames.length) {
+                // Simple implementation - just reset to demonstrate
+                console.log('Next move functionality');
+            }
+        }
+
+        function restartGame() {
+            chess.reset();
+            updateBoard();
+            document.getElementById('btn_starttest').style.display = 'inline-block';
+            document.getElementById('btn_next').style.display = 'none';
+            document.getElementById('btn_restart').style.display = 'none';
+        }
+
+        function resetGame() {
+            restartGame();
+        }
+
+        function toggleLibrary() {
+            const panel = document.getElementById('gamesPanel');
+            if (panel) {
+                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.getElementById('chk_darkmode').checked;
+            document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
+            gameSettings.darkMode = isDark;
+            saveSettings();
+        }
+
+        function toggleBoardFlip() {
+            const isFlipped = document.getElementById('flipped').checked;
+            if (chessground) {
+                chessground.toggleOrientation();
+            }
+            gameSettings.flipped = isFlipped;
+            saveSettings();
+        }
+
+        function saveSettings() {
+            localStorage.setItem('iq4u-chess-settings', JSON.stringify(gameSettings));
+        }
+
+        function loadSettings() {
+            try {
+                const saved = localStorage.getItem('iq4u-chess-settings');
+                if (saved) {
+                    gameSettings = { ...gameSettings, ...JSON.parse(saved) };
+                }
+                
+                // Apply settings to UI
+                document.getElementById('chk_darkmode').checked = gameSettings.darkMode;
+                document.getElementById('Light-Color').value = gameSettings.lightSquareColor;
+                document.getElementById('Dark-Color').value = gameSettings.darkSquareColor;
+                document.getElementById('chk_playAudio').checked = gameSettings.playAudio;
+                document.getElementById('flipped').checked = gameSettings.flipped;
+                
+                // Apply theme
+                document.documentElement.setAttribute('data-bs-theme', gameSettings.darkMode ? 'dark' : 'light');
+                updateBoardColors();
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        function updateBoardColors() {
+            const lightColor = document.getElementById('Light-Color').value;
+            const darkColor = document.getElementById('Dark-Color').value;
+            
+            document.documentElement.style.setProperty('--light-square-color', lightColor);
+            document.documentElement.style.setProperty('--dark-square-color', darkColor);
+            
+            gameSettings.lightSquareColor = lightColor;
+            gameSettings.darkSquareColor = darkColor;
+            saveSettings();
+        }
+
+        function updateBoard() {
+            if (!chessground || !chess) return;
+            
+            chessground.set({
+                fen: chess.fen(),
+                turnColor: chess.turn() === 'w' ? 'white' : 'black',
+                check: chess.inCheck(),
+                movable: {
+                    dests: toDests(chess),
+                    color: chess.turn() === 'w' ? 'white' : 'black'
+                }
+            });
+            
+            // Update move indicator
+            const moveIndicator = document.getElementById('moveturn');
+            if (moveIndicator) {
+                const turn = chess.turn() === 'w' ? 'White' : 'Black';
+                const status = chess.inCheck() ? ' (Check)' : '';
+                moveIndicator.textContent = `${turn} to move${status}`;
+            }
+        }
+
+        function playMoveSound() {
+            if (!gameSettings.playAudio) return;
+            
+            // Create a simple beep sound using Web Audio API
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (error) {
+                console.error('Error playing sound:', error);
+            }
+        }
+
+        // Initialize the application
+        window.addEventListener('load', () => {
+            // Show login modal initially
+            document.getElementById('loginModal').style.display = 'block';
+            document.getElementById('application').style.display = 'none';
+            document.querySelector('header').style.display = 'none';
+            updateConnectionStatus('disconnected');
+            
+            // Initialize Firebase auth state listener
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('loginModal').style.display = 'none';
+                    document.getElementById('application').style.display = 'block';
+                    document.querySelector('header').style.display = 'flex';
+                    document.getElementById('userEmail').textContent = user.email;
+                    updateConnectionStatus('connected');
+                    initializeChess();
+                    loadSettings();
+                    setupEventHandlers();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
