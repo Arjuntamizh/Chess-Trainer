@@ -2,32 +2,38 @@
 
 <html data-bs-theme="light">
 <head>
-<title>IQ4U Chess</title>
-<meta charset="utf-8" content="width=device-width, initial-scale=1 maximum-scale=1.0" name="viewport"/>
-<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
-<meta content="no-cache" http-equiv="Pragma"/>
-<meta content="0" http-equiv="Expires"/>
-<link href="./src/app/favicon.ico?v=2" rel="shortcut icon" type="image/x-icon"/>
-<link href="./src/app/manifest.json" rel="manifest"/>
-<!-- Bootstrap (https://getbootstrap.com/docs/5.3/getting-started/download/) -->
-<link href="./src/lib/bootstrap/bootstrap-5.3.5.min.css" rel="stylesheet"/>
-<script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
-<!-- Chessground js -->
-<!-- Removing chessboard.js and Linking Chessground.js from loacally-->
-<link href="./js/chessground.base.css" rel="stylesheet"/>
-<link rel="stylesheet" href="./js/chessground.brown.css">
-<link rel="stylesheet" href="./js/chessground.cburnett.css">
+  <title>IQ4U Chess</title>
+  <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1"/>
+  
+  <!-- Favicon & manifest -->
+  <link href="./src/app/favicon.ico?v=2" rel="shortcut icon"/>
+  <link href="./src/app/manifest.json" rel="manifest"/>
 
-<script src="./js/chessground.min.js"></script>
-<!-- MiniColors (https://github.com/claviska/jquery-minicolors) -->
-<link href="./src/lib/jquery-minicolors/jquery.minicolors.css" rel="stylesheet"/>
-<script src="./src/lib/jquery-minicolors/jquery.minicolors.min.js"></script>
-<!-- Core Application -->
-<link href="./src/app/chess-pgn-trainer.css" rel="stylesheet"/>
-<script src="./src/app/chess-pgn-trainer.js" type="module"></script>
-<!-- Annotation -->
-<link href="./src/components/annotation/annotate.css" rel="stylesheet"/>
+  <!-- Bootstrap CSS/JS -->
+  <link href="./src/lib/bootstrap/bootstrap-5.3.5.min.css" rel="stylesheet"/>
+  <script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
+
+  <!-- Chessground CSS (base + themes) -->
+  <link href="./js/chessground.base.css" rel="stylesheet"/>
+  <link href="./js/chessground.brown.css" rel="stylesheet"/>
+  <link href="./js/chessground.cburnett.css" rel="stylesheet"/>
+
+  <!-- Chess engine + Chessground JS -->
+  <script src="./js/chess.min.js"></script>
+  <script src="./js/chessground.min.js"></script>
+
+  <!-- MiniColors for board‐color pickers (optional) -->
+  <link href="./src/lib/jquery-minicolors/jquery.minicolors.css" rel="stylesheet"/>
+  <script src="./src/lib/jquery-minicolors/jquery.minicolors.min.js"></script>
+
+  <!-- Your application CSS & JS -->
+  <link href="./src/app/chess-pgn-trainer.css" rel="stylesheet"/>
+  <script src="./src/app/chess-pgn-trainer.js" type="module"></script>
+
+  <!-- Annotation CSS -->
+  <link href="./src/components/annotation/annotate.css" rel="stylesheet"/>
 </head>
+
 <body style="overscroll-behavior-y: none;overflow: hidden;">
 <header class="d-flex justify-content-between align-items-center bg-dark text-white p-2">
 <h3 class="ms-2">IQ4U Chess</h3>
