@@ -1,33 +1,33 @@
+```css css src/app/chess-pgn-trainer.css
 .italic {
-	font-style: italic;
+  font-style: italic;
 }
 
 /* Scale images to 100% of available width */
 img {
-	display: block;
-	max-width: 100%;
-	height: auto;
+  display: block;
+  max-width: 100%;
+  height: auto;
 }
 
 a.disabled {
-	pointer-events: none;
+  pointer-events: none;
 }
 
 .settingstextinput {
-	width: 100%;
+  width: 100%;
 }
 
 .body {
-	overscroll-behavior-y: contain !important;
-	overflow: hidden !important;
-	-webkit-overflow-scrolling: touch; /* iOS fix for scrolling*/
-
-    position: fixed;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    touch-action: none;
+  overscroll-behavior-y: contain !important;
+  overflow: hidden !important;
+  -webkit-overflow-scrolling: touch; /* iOS fix for scrolling*/
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  touch-action: none;
 }
 
 html, body {
@@ -35,11 +35,43 @@ html, body {
 }
 
 .prevent-select {
-    -webkit-user-select: none; /* Safari */
-    -ms-user-select: none; /* IE 10 and IE 11 */
-    user-select: none; /* Standard syntax */
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 }
 
 .pausedBoard {
-	opacity:50%;
+  opacity: 50%;
 }
+
+/* Base styles for smaller screens (mobile) */
+#myBoard {
+  width: 90vw; /* Use most of the viewport width */
+  height: 90vw; /* Height should match width for a square board */
+  max-width: 400px; /* Maximum width for smaller screens */
+  max-height: 400px;
+  margin: 0 auto; /* Center the board horizontally */
+}
+
+/* Media query for tablets */
+@media (min-width: 768px) {
+  #myBoard {
+    width: 70vw; /* Slightly smaller on tablets */
+    height: 70vw;
+    max-width: 500px; /* Increased maximum width for tablets */
+    max-height: 500px;
+  }
+}
+
+/* Media query for desktops */
+@media (min-width: 992px) {
+  #myBoard {
+    width: 50vh; /* Use 50% of the viewport height on desktops */
+    height: 50vh;
+    max-width: 600px; /* Further increased maximum width for desktops */
+    max-height: 600px;
+  }
+}
+```
+
+This CSS contains your original styles, combined with the responsive styles for `#myBoard` that I provided in my previous response.
