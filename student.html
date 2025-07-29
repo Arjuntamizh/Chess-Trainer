@@ -1,37 +1,42 @@
 <!DOCTYPE html>
 
 <html data-bs-theme="light">
+<!DOCTYPE html>
+<html data-bs-theme="light">
 <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>IQ4U Chess</title>
-  <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1"/>
-  
-  <!-- Favicon & manifest -->
-  <link href="./src/app/favicon.ico?v=2" rel="shortcut icon"/>
-  <link href="./src/app/manifest.json" rel="manifest"/>
 
-  <!-- Bootstrap CSS/JS -->
-  <link href="./src/lib/bootstrap/bootstrap-5.3.5.min.css" rel="stylesheet"/>
-  <script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
+  <!-- Favicon & Manifest -->
+  <link rel="shortcut icon" href="./src/app/favicon.ico?v=2" />
+  <link rel="manifest" href="./src/app/manifest.json" />
+
+  <!-- Bootstrap CSS (only if you're using Bootstrap components) -->
+  <link rel="stylesheet" href="./src/lib/bootstrap/bootstrap-5.3.5.min.css" />
 
   <!-- Chessground CSS (base + themes) -->
-  <link href="./js/chessground.base.css" rel="stylesheet"/>
-  <link href="./js/chessground.brown.css" rel="stylesheet"/>
-  <link href="./js/chessground.cburnett.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="./js/chessground.base.css" />
+  <link rel="stylesheet" href="./js/chessground.brown.css" />
+  <link rel="stylesheet" href="./js/chessground.cburnett.css" />
 
-  <!-- Chess engine + Chessground JS -->
-  <script src="./js/chess.min.js"></script>
-  <script src="./js/chessground.min.js"></script>
+  <!-- jQuery MiniColors (only if you're using color pickers in the UI) -->
+  <link rel="stylesheet" href="./src/lib/jquery-minicolors/jquery.minicolors.css" />
 
-  <!-- MiniColors for board‐color pickers (optional) -->
-  <link href="./src/lib/jquery-minicolors/jquery.minicolors.css" rel="stylesheet"/>
+  <!-- Your App CSS -->
+  <link rel="stylesheet" href="./src/app/chess-pgn-trainer.css" />
+  <link rel="stylesheet" href="./src/components/annotation/annotate.css" />
+
+  <!-- Core JS libraries -->
+  <script src="./js/chess.min.js"></script> <!-- UMD: no type="module" -->
+  <script src="./js/chessground.min.js"></script> <!-- UMD: no type="module" -->
   <script src="./src/lib/jquery-minicolors/jquery.minicolors.min.js"></script>
 
-  <!-- Your application CSS & JS -->
-  <link href="./src/app/chess-pgn-trainer.css" rel="stylesheet"/>
-  <script src="./src/app/chess-pgn-trainer.js" type="module"></script>
+  <!-- Bootstrap Bundle JS (optional; needed only if using dropdowns/modals/etc.) -->
+  <script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
 
-  <!-- Annotation CSS -->
-  <link href="./src/components/annotation/annotate.css" rel="stylesheet"/>
+  <!-- Your App Logic (uses ES Modules) -->
+  <script type="module" src="./src/app/chess-pgn-trainer.js"></script>
 </head>
 
 <body style="overscroll-behavior-y: none;overflow: hidden;">
