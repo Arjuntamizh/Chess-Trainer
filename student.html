@@ -1,42 +1,32 @@
 <!DOCTYPE html>
+
 <html data-bs-theme="light">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>IQ4U Chess</title>
-
-  <!-- Favicon & Manifest -->
-  <link rel="shortcut icon" href="./src/app/favicon.ico?v=2" />
-  <link rel="manifest" href="./src/app/manifest.json" />
-
-  <!-- Bootstrap CSS (only if you're using Bootstrap components) -->
-  <link rel="stylesheet" href="./src/lib/bootstrap/bootstrap-5.3.5.min.css" />
-
-  <!-- Chessground CSS (base + themes) -->
-  <link rel="stylesheet" href="./js/chessground.base.css" />
-  <link rel="stylesheet" href="./js/chessground.brown.css" />
-  <link rel="stylesheet" href="./js/chessground.cburnett.css" />
-	
-  <!-- jQuery MiniColors (only if you're using color pickers in the UI) -->
-  <link rel="stylesheet" href="./src/lib/jquery-minicolors/jquery.minicolors.css" />
-
-  <!-- Your App CSS -->
-  <link rel="stylesheet" href="./src/app/chess-pgn-trainer.css" />
-  <link rel="stylesheet" href="./src/components/annotation/annotate.css" />
-
-  <!-- Core JS libraries -->
-  <script type="module" src="./js/chess.min.js"></script> <!-- UMD: no type="module" -->
-  <script type="module" src="./js/chessground.min.js"></script> <!-- UMD: no type="module" -->
+<title>IQ4U Chess</title>
+<meta charset="utf-8" content="width=device-width, initial-scale=1 maximum-scale=1.0" name="viewport"/>
+<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<meta content="0" http-equiv="Expires"/>
+<link href="./src/app/favicon.ico?v=2" rel="shortcut icon" type="image/x-icon"/>
+<link href="./src/app/manifest.json" rel="manifest"/>
+<!-- JQuery (https://jquery.com/) -->
 <script src="./src/lib/jquery/jquery-3.7.1.min.js"></script>
+<!-- Bootstrap (https://getbootstrap.com/docs/5.3/getting-started/download/) -->
+<link href="./src/lib/bootstrap/bootstrap-5.3.5.min.css" rel="stylesheet"/>
+<script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
+<!-- Chessboardjs -->
+<!-- Modified copy of chessboardJS in order to handle resizing on width AND height so that the board never gets larger than the vertical space -->
+<link href="./src/lib/chessboardjs/chessboard-1.0.0.css" rel="stylesheet"/>
+<script src="./src/lib/chessboardjs/chessboard-1.0.0-modified.js"></script>
+<!-- MiniColors (https://github.com/claviska/jquery-minicolors) -->
+<link href="./src/lib/jquery-minicolors/jquery.minicolors.css" rel="stylesheet"/>
 <script src="./src/lib/jquery-minicolors/jquery.minicolors.min.js"></script>
-
-  <!-- Bootstrap Bundle JS (optional; needed only if using dropdowns/modals/etc.) -->
-  <script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
-
-  <!-- Your App Logic (uses ES Modules) -->
-  <script type="module" src="./src/app/chess-pgn-trainer.js"></script>
+<!-- Core Application -->
+<link href="./src/app/chess-pgn-trainer.css" rel="stylesheet"/>
+<script src="./src/app/chess-pgn-trainer.js" type="module"></script>
+<!-- Annotation -->
+<link href="./src/components/annotation/annotate.css" rel="stylesheet"/>
 </head>
-
 <body style="overscroll-behavior-y: none;overflow: hidden;">
 <header class="d-flex justify-content-between align-items-center bg-dark text-white p-2">
 <h3 class="ms-2">IQ4U Chess</h3>
@@ -101,6 +91,14 @@
 <div class="row fs-4">
 <div class="container align-items-center col-12 p-2" style="text-align:center">
 <button class="btn btn-primary fs-5" id="openPGN_button" style="display: inline-block" type="button">Open PGN File</button>
+<select id="pgnSelector" class="form-select fs-5 mt-2" style="max-height: 200px; overflow-y: auto;">
+  <option selected disabled>Select PGN Study</option>
+  <option value="fork.pgn">Fork</option>
+  <option value="pin.pgn">Pin</option>
+  <option value="skewer.pgn">Skewer</option>
+  <option value="discovered.pgn">Discovered Attack</option>
+</select>
+
 <input accept=".pgn" id="openPGN" style="display: none" type="file"/>
 <button class="btn btn-primary fs-5" id="btn_reset" style="display: inline-block">Reset</button>
 </div>
@@ -538,6 +536,106 @@
     localStream.getAudioTracks().forEach(track => track.enabled = !isMuted);
     document.getElementById("muteToggle").innerText = isMuted ? "Unmute" : "Mute";
   };
+</script>
+
+<script>
+  document.getElementById("pgnSelector").addEventListener("change", function () {
+    const selectedFile = this.value;
+    fetch(`./pgns/${selectedFile}`)
+      .then(res => res.text())
+      .then(pgnText => {
+        const pgnInput = document.createElement("input");
+        pgnInput.type = "file";
+        const file = new File([pgnText], selectedFile, { type: "text/plain" });
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        pgnInput.files = dataTransfer.files;
+
+        const openPGN = document.getElementById("openPGN");
+        openPGN.files = pgnInput.files;
+
+        const event = new Event("change", { bubbles: true });
+        openPGN.dispatchEvent(event);
+      })
+      .catch(err => alert("Failed to load PGN: " + err));
+  });
+</script>
+
+
+<script>
+  const selector = document.createElement("select");
+  selector.id = "pgnSelector";
+  selector.className = "form-select fs-5 mt-2";
+  selector.innerHTML = '<option disabled selected>Select PGN</option>';
+  document.getElementById("openPGN_button").insertAdjacentElement("afterend", selector);
+
+  fetch("https://api.github.com/repos/Arjuntamizh/Chess-Trainer/contents/pgns")
+    .then(res => res.json())
+    .then(files => {
+      files
+        .filter(file => file.name.endsWith(".pgn"))
+        .forEach(file => {
+          const opt = document.createElement("option");
+          opt.value = file.download_url;
+          opt.textContent = file.name.replace(".pgn", "");
+          selector.appendChild(opt);
+        });
+    });
+
+  selector.addEventListener("change", function () {
+    fetch(this.value)
+      .then(res => res.text())
+      .then(pgnText => {
+        const pgnInput = document.createElement("input");
+        pgnInput.type = "file";
+        const file = new File([pgnText], "selected.pgn", { type: "text/plain" });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        pgnInput.files = dt.files;
+
+        const openPGN = document.getElementById("openPGN");
+        openPGN.files = pgnInput.files;
+
+        const event = new Event("change", { bubbles: true });
+        openPGN.dispatchEvent(event);
+      });
+  });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize board first
+  window.chessboard = Chessboard('myBoard', {
+    pieceTheme: './src/lib/chessboardjs/img/chesspieces/wikipedia/{piece}.png',
+    position: 'start',
+    draggable: true
+  });
+
+  // Enhanced PGN loader
+  document.getElementById("pgnSelector").addEventListener("change", async function() {
+    try {
+      const response = await fetch(`./pgns/${this.value}`);
+      if (!response.ok) throw new Error("File not found");
+      
+      const pgnText = await response.text();
+      window.chessboard.load(pgnText);
+      
+      // Debug output
+      console.log("PGN loaded successfully");
+      console.log("Current position:", window.chessboard.position());
+      
+      // Force redraw if pieces don't appear
+      setTimeout(() => {
+        const current = window.chessboard.position();
+        window.chessboard.position(current);
+      }, 50);
+      
+    } catch (error) {
+      console.error("PGN Error:", error);
+      alert(`Failed to load PGN:\n${error.message}`);
+    }
+  });
+});
 </script>
 </body>
 </html>
