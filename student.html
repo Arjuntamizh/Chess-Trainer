@@ -570,7 +570,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch(this.value);
       const pgnText = await res.text();
-      if (game.load_pgn(pgnText)) {
+      if (game.loadpgn(pgnText)) {
         board.position(game.fen());
         console.log("PGN loaded and applied to board.");
       } else {
