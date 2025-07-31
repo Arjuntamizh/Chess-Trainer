@@ -1,31 +1,45 @@
 <!DOCTYPE html>
 <html data-bs-theme="light">
 <head>
-  <meta charset="utf-8" />
-  <title>IQ4U Chess</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1.0" />
-  <link rel="stylesheet" href="./src/lib/bootstrap/bootstrap-5.3.5.min.css" />
-  <script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
-  <link rel="stylesheet" href="./src/lib/chessboardjs/chessboard-1.0.0.css" />
-  <script src="./src/lib/chessboardjs/chessboard-1.0.0-modified.js"></script>
-  <style>
-    #myBoard { width: 400px; margin: 20px auto; }
-  </style>
-</head>
-<body>
+<title>IQ4U Chess</title>
+<meta charset="utf-8" content="width=device-width, initial-scale=1 maximum-scale=1.0" name="viewport"/>
+<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<meta content="0" http-equiv="Expires"/>
+<link href="./src/app/favicon.ico?v=2" rel="shortcut icon" type="image/x-icon"/>
+<link href="./src/app/manifest.json" rel="manifest"/>
+<!-- JQuery (https://jquery.com/) -->
 
-<h3 class="text-center mt-3">IQ4U Chess</h3>
-<div class="text-center">
-  <button id="openPGN_button" class="btn btn-primary">Open PGN File</button>
-  <input id="openPGN" type="file" accept=".pgn" style="display:none" />
-  <select id="pgnSelector" class="form-select fs-5 mt-2 mx-auto" style="max-width: 300px;">
-    <option disabled selected>Select PGN</option>
-  </select>
-</div>
+<script type="module">
+  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-<div class="chessboard" id="myBoard"></div>
+  const auth = getAuth();
+  document.getElementById("logoutBtn").onclick = () => {
+    signOut(auth).then(() => window.location.href = "index.html");
+  };
 
-<!-- Firebase + PGN Loader -->
+  let localStream, isMuted = false;
+  document.getElementById("joinCall").onclick = async () => {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    alert("Voice joined (demo mode)");
+  };
+  document.getElementById("leaveCall").onclick = () => {
+    if (localStream) localStream.getTracks().forEach(t => t.stop());
+    alert("Left voice call");
+  };
+  document.getElementById("muteToggle").onclick = () => {
+    if (!localStream) return;
+    isMuted = !isMuted;
+    localStream.getAudioTracks().forEach(track => track.enabled = !isMuted);
+    document.getElementById("muteToggle").innerText = isMuted ? "Unmute" : "Mute";
+  };
+</script>
+
+
+
+
+
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -42,21 +56,19 @@
     appId: "1:1029237519163:web:2b060008c0f11bfe5a3d1e"
   };
 
-  initializeApp(firebaseConfig);
-  getAuth();
-  getFirestore();
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const db = getFirestore();
 
   document.addEventListener("DOMContentLoaded", () => {
+    const selector = document.getElementById("pgnSelector");
     const board = Chessboard('myBoard', {
       pieceTheme: './src/lib/chessboardjs/img/chesspieces/wikipedia/{piece}.png',
       position: 'start',
-      draggable: false
+      draggable: true
     });
-
     const game = new Chess();
-    const selector = document.getElementById("pgnSelector");
 
-    // Populate PGN selector
     fetch("https://api.github.com/repos/Arjuntamizh/Chess-Trainer/contents/pgns")
       .then(res => res.json())
       .then(files => {
@@ -68,21 +80,17 @@
         });
       });
 
-    // Load PGN and play it
     selector.addEventListener("change", async function () {
       try {
         const res = await fetch(this.value);
         const pgnText = await res.text();
-
         if (game.load_pgn(pgnText)) {
-          const finalFen = game.fen();
-          board.position(finalFen);
-          console.log("PGN loaded and board updated to final position.");
+          board.position(game.fen());
         } else {
-          alert("Invalid PGN file.");
+          alert("Invalid PGN format.");
         }
       } catch (err) {
-        alert("Failed to load PGN: " + err);
+        alert("Failed to load PGN: " + err.message);
       }
     });
   });
